@@ -1,0 +1,101 @@
+.toolbar2 {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    gap:10px;
+}
+
+/* Audit Card */
+.audit-card {
+    background-color: #FAFAF7;
+    padding: 25px;
+    border-radius: 20px;
+    max-width: 900px;
+    margin: 30px auto;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    color: #3D3929;
+}
+
+.audit-card h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #BD5D3A;
+}
+
+.audit-card p {
+    font-size: 18px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+/* Audit List */
+.audit-list {
+    margin-top: 30px;
+}
+
+.audit-list h3 {
+    font-size: 28px;
+    color: #3D3929;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.audit-list-card {
+    background-color: #FFFFFF;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.audit-list-card:hover {
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+}
+
+.audit-list-card p {
+    font-size: 18px;
+    color: #555;
+}
+
+.audit-list-card button {
+    background-color: #3498db;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.audit-list-card button:hover {
+    background-color: #2980b9;
+}
+
+/* Audit Selector */
+.audit-selector {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.audit-selector select {
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background-color: #FFFFFF;
+    width: 100%;
+    transition: border-color 0.3s ease;
+}
+
+.audit-selector select:focus {
+    border-color: #BD5D3A;
+    outline: none;
+}
+
+
+

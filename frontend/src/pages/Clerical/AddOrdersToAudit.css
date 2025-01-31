@@ -1,0 +1,59 @@
+.add-order-payment-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: 'Georgia', serif;
+    background-color: #EEECE2;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.order-card {
+    display: flex;
+    align-items: center;
+    background-color: #FFFFFF;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.order-card input {
+    margin-right: 15px;
+}
+
+.order-id {
+    font-weight: bold;
+    color: #3D3929;
+    margin-right: 10px;
+}
+
+.order-details {
+    color: #555;
+}
+
+.proceed-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #BD5D3A;
+    color: #FFF;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.proceed-button:hover {
+    background-color: #A44B2E;
+}
+
+.proceed-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}

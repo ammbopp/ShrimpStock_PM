@@ -1,0 +1,66 @@
+/* Layout container */
+.page-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* Side Menu */
+.side-menu {
+  width: 200px;
+  background-color: #f8f8f8;
+  height: 100vh;
+  padding-top: 20px;
+}
+
+.side-menu ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.side-menu li {
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.side-menu li:hover {
+  background-color: #e0e0e0;
+}
+
+/* Content */
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  overflow-x: auto;
+  margin-top: 100px;
+}
+
+/* Navbar */
+
+
+/* Filter & Sort Controls */
+.filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+/* Request Card Styles */
+.request-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.request-card {
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+}
+
+.status {
+  font-weight: bold;
+}

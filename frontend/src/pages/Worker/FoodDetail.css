@@ -1,0 +1,120 @@
+/* FoodDetail.css */
+
+/* Product Detail Card */
+.product-detail-card {
+    background-color: #FAFAF7;
+    padding: 20px;
+    border-radius: 20px;
+    width: 80%; /* ลดความกว้างของการ์ดให้เล็กลง */
+    max-width: 400px; /* ลดความกว้างสูงสุดของการ์ด */
+    margin: 40px auto;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  /* Product Image */
+  .product-detail-img {
+    width: 90%; /* ปรับให้ภาพครอบคลุมการ์ดในแบบที่เล็กลง */
+    max-width: 300px; /* ลดความกว้างสูงสุดของภาพ */
+    height: auto; /* ปรับขนาดความสูงตามอัตราส่วนของรูป */
+    object-fit: contain; /* ป้องกันไม่ให้รูปถูกครอบตัด */
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+  
+  /* Product Description */
+  .product-description {
+    margin: 15px 0;
+    font-size: 16px;
+    color: #333;
+    line-height: 1.5;
+  }
+  
+  /* Quantity and Unit Selectors */
+  .quantity-select,
+  .unit-select {
+    margin: 10px 0;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .quantity-select label,
+  .unit-select label {
+    margin-right: 10px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  /* Improved Styling for Input and Select */
+  input[type="number"] {
+    padding: 8px;
+    border-radius: 15px;
+    border: 1px solid #ccc;
+    width: 70px; /* ปรับขนาดให้กะทัดรัด */
+    text-align: center;
+    font-size: 16px;
+    margin-right: 10px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  input[type="number"]:focus {
+    border-color: #BD5D3A;
+    box-shadow: 0px 0px 5px rgba(189, 93, 58, 0.5);
+    outline: none;
+  }
+  
+  select {
+    padding: 8px;
+    border-radius: 15px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  select:focus {
+    border-color: #BD5D3A;
+    box-shadow: 0px 0px 5px rgba(189, 93, 58, 0.5);
+    outline: none;
+  }
+  
+  /* Add to Cart Button */
+  .add-to-cart-button {
+    background-color: #BD5D3A;
+    color: #FFFFFF;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .add-to-cart-button:hover {
+    background-color: #9b472d;
+  }
+  
+  /* Adjust Cart Icon */
+  .cart-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+  }
+  
+  .cart-count {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: #BD5D3A;
+    color: white;
+    padding: 5px;
+    border-radius: 50%;
+    font-size: 14px;
+  }
+  

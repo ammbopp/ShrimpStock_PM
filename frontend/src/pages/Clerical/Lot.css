@@ -1,0 +1,97 @@
+/* Lot.css */
+
+.lot-list {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .lot-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .lot-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    width: 250px;
+    text-align: left;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .lot-card:hover {
+    transform: scale(1.05);
+  }
+  
+  .lot-card p {
+    margin: 10px 0;
+  }
+  
+  .lot-card button {
+    padding: 10px 15px;
+    font-size: 14px;
+    color: #fff;
+    background-color: #bd5d3a;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .lot-card button:hover {
+    background-color: #a04f32;
+  }
+  
+  /* LotDetail.css */
+
+.lot-detail-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 20px;
+}
+
+.lot-detail-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  max-width: 500px;
+  text-align: center;
+}
+
+.lot-detail-card h2 {
+  color: #bd5d3a;
+  margin-bottom: 20px;
+}
+
+.lot-detail-card p {
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+.back-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #bd5d3a;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.back-button:hover {
+  background-color: #a04f32;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+  text-align: center;
+}

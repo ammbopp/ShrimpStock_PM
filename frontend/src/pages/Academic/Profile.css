@@ -1,0 +1,115 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #FFFFFF;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    width: 60%;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo img {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+  }
+  
+  .profile-container {
+    margin-top: 600px; /* เพื่อให้ navbar ไม่ทับ */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .profile-card {
+    background-color: #FAFAF7;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+    width: 100%; /* ปรับขนาดให้เต็ม */
+    max-width: 900px; /* เพิ่มความกว้างให้มากขึ้น */
+  }
+  
+  .profile-picture {
+    display: flex;
+    justify-content: center;
+    margin-bottom: -35px;
+    position: relative;
+    top: -70px; /* ทำให้รูปภาพโปรไฟล์ลอยขึ้น */
+    z-index: 1001; /* เพื่อให้แน่ใจว่ารูปจะอยู่เหนือ navbar */
+  }
+  
+  .profile-picture img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+    background-color: white; /* เพิ่มพื้นหลังสีขาวเพื่อความชัดเจน */
+  }
+  
+  .profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .profile-field {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .profile-field label {
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  
+  .profile-field p,
+  .profile-field input,
+  .profile-field textarea {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    background-color: #ffffff;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profile-field p {
+    margin: 0;
+  }
+  
+  .profile-buttons {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .edit-button,
+  .save-button {
+    background-color: #2c3e50;
+    color: #ffffff;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 40%;
+  }
+  
+  .edit-button:hover,
+  .save-button:hover {
+    background-color: #1a252f;
+  }
+  

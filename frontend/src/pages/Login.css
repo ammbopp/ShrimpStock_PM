@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Georgia:wght@400;700&display=swap');
+
+body {
+  font-family: 'Georgia', serif;
+  background-color: #EEECE2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.login-card {
+  background-color: #FFFFFF;
+  border-radius: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.login-header {
+  flex: 1;
+  text-align: center;
+  margin-right: 32px;
+}
+
+.login-header img {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 16px;
+}
+
+.login-header h1 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #3D3929;
+}
+
+.form-container {
+  flex: 2;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  color: #3D3929;
+  margin-bottom: 8px;
+}
+
+.form-group input {
+  width: 95%;
+  padding: 12px;
+  border: 1px solid #BD5D3A;
+  border-radius: 15px;
+  font-size: 16px;
+  color: #3D3929;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #BD5D3A;
+}
+
+.login-button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: #BD5D3A;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.login-button:hover {
+  background-color: #a4542f;
+}
+
+.forgot-password, .sign-up {
+  font-size: 14px;
+  color: #BD5D3A;
+  text-align: center;
+  text-decoration: none;
+}
+
+.forgot-password:hover, .sign-up:hover {
+  color: #a4542f;
+}
