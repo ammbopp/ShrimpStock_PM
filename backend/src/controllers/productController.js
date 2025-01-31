@@ -2,45 +2,48 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const connection = require('../db/database');
-const { v4: uuidv4 } = require('uuid'); // ใช้ UUID เพื่อสร้าง request_id และ request_list_id
-
-// const fs = require('fs');
-
-// fs.writeFileSync(testFilePath, 'This is a test file!', (err) => {
-//   if (err) console.error('Error creating test file:', err);
-//   else console.log('Test file created successfully!');
-// });
-
+const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
 
-// Define the path where the test file will be saved
-const testFilePath = path.join(__dirname, 'testFile.txt');
+// แก้ไขเส้นทางให้สัมพันธ์กับโครงสร้างโครงการ
+const uploadPath = path.join(__dirname, '../../frontend/public/product');
 
-// Write the content to the file
-fs.writeFileSync(testFilePath, 'This is a test file!', (err) => {
-  if (err) console.error('Error creating test file:', err);
-  else console.log('Test file created successfully!');
+// สร้างโฟลเดอร์หากยังไม่มี
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath, { recursive: true });
+}
+
+// ฟังก์ชันสำหรับ sanitize ชื่อไฟล์
+const sanitizeFilename = (filename) => {
+  return filename.replace(/[^a-z0-9_\-\.]/gi, '_').toLowerCase();
+};
+
+// ตั้งค่าการอัปโหลดด้วย multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadPath),
+  filename: (req, file, cb) => {
+    const sanitizedFilename = Date.now() + '-' + sanitizeFilename(file.originalname);
+    cb(null, sanitizedFilename);
+  },
 });
 
+const upload = multer({ storage });
 
+// 1. Route: Get all products
 router.get('/products', (req, res) => {
   const { product_type } = req.query;
-
   const typeQuery = product_type ? `WHERE product_type = ?` : '';
-
   const query = `
     SELECT 
       product_id, 
       product_name, 
-      product_image,
+      product_image, 
       product_type
     FROM products
-    ${typeQuery}
+    ${typeQuery};
   `;
-
-  const queryParams = [];
-  if (product_type) queryParams.push(product_type);
+  const queryParams = product_type ? [product_type] : [];
 
   connection.query(query, queryParams, (error, results) => {
     if (error) {
@@ -48,18 +51,15 @@ router.get('/products', (req, res) => {
       res.status(500).json({ error: 'Database query error' });
       return;
     }
-
-    if (results.length === 0) {
-      res.status(404).json({ message: 'No products found' });
-      return;
-    }
-    res.status(200).json(results);
+    res.status(results.length > 0 ? 200 : 404).json(
+      results.length > 0 ? results : { message: 'No products found' }
+    );
   });
 });
 
+// 2. Route: Get product details by ID
 router.get('/product-detail/:product_id', (req, res) => {
   const { product_id } = req.params;
-
   const query = `
     SELECT 
       product_id, 
@@ -74,23 +74,21 @@ router.get('/product-detail/:product_id', (req, res) => {
   `;
 
   connection.query(query, [product_id], (error, results) => {
-    if(error) {
+    if (error) {
       console.error('Database query error:', error);
       res.status(500).json({ error: 'Failed to fetch product details' });
       return;
     }
-    if(results.length === 0) {
-      res.status(404).json({ message: 'Product not found' });
-      return;
-    }
-    res.status(200).json(results[0]);
+    res.status(results.length > 0 ? 200 : 404).json(
+      results.length > 0 ? results[0] : { message: 'Product not found' }
+    );
   });
 });
 
+// 3. Route: Get lots by product ID
 router.get('/product/:product_id/lots', (req, res) => {
   const { product_id } = req.params;
-
-  const lotQuery = `
+  const query = `
     SELECT 
       lot_id, 
       product_id, 
@@ -101,23 +99,21 @@ router.get('/product/:product_id/lots', (req, res) => {
     WHERE product_id = ?;
   `;
 
-  connection.query(lotQuery, [product_id], (error, results) => {
+  connection.query(query, [product_id], (error, results) => {
     if (error) {
       console.error('Database query error:', error);
       res.status(500).json({ error: 'Failed to fetch lot details' });
       return;
     }
-    if (results.length === 0) {
-      res.status(404).json({ message: 'No lots found for this product' });
-      return;
-    }
-    res.status(200).json(results);
+    res.status(results.length > 0 ? 200 : 404).json(
+      results.length > 0 ? results : { message: 'No lots found for this product' }
+    );
   });
 });
 
+// 4. Route: Get lot details by lot ID
 router.get('/lot-detail/:lot_id', (req, res) => {
   const { lot_id } = req.params;
-
   const query = `
     SELECT 
       pl.lot_id, 
@@ -140,52 +136,13 @@ router.get('/lot-detail/:lot_id', (req, res) => {
       res.status(500).json({ error: 'Failed to fetch lot detail' });
       return;
     }
-    if (results.length === 0) {
-      res.status(404).json({ message: 'Lot not found' });
-      return;
-    }
-    res.status(200).json(results[0]);
+    res.status(results.length > 0 ? 200 : 404).json(
+      results.length > 0 ? results[0] : { message: 'Lot not found' }
+    );
   });
 });
 
-
-// Route to get unit options from unit table
-router.get('/add-product/units', (req, res) => {
-  const query = 'SELECT unit_name FROM units';
-
-  connection.query(query, (error, results) => {
-    if (error) {
-      console.error('Database query error:', error); // Log detailed error to debug
-      res.status(500).json({ error: 'Failed to fetch units' });
-      return;
-    }
-    res.status(200).json(results);
-  });
-});
-
-// Path to the upload directory
-const uploadPath = '/Users/bopp/Desktop/sa/SA-Stock/frontend/public/product';
-
-// Ensure the directory exists
-if (!fs.existsSync(uploadPath)) {
-  fs.mkdirSync(uploadPath, { recursive: true }); // Creates directory if it does not exist
-}
-
-const sanitizeFilename = (filename) => {
-  return filename.replace(/[^a-z0-9_\-\.]/gi, '_').toLowerCase();
-};
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadPath),
-  filename: (req, file, cb) => {
-    const sanitizedFilename = Date.now() + '-' + sanitizeFilename(file.originalname);
-    cb(null, sanitizedFilename);
-  },
-});
-
-
-const upload = multer({ storage });
-
+// 5. Route: Add product with image upload
 router.post('/add-product', upload.single('product_image'), (req, res) => {
   const { product_name, product_type, product_unit, product_quantity, threshold } = req.body;
   const product_image = req.file ? req.file.filename : null;
@@ -194,17 +151,6 @@ router.post('/add-product', upload.single('product_image'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
-  console.log('File uploaded successfully:', req.file.path);
-
-  // Add logging to check data received
-  console.log('Received data:', {
-    product_name,
-    product_type,
-    product_unit,
-    product_quantity,
-    threshold,
-    product_image,
-  });
 
   const query = `
     INSERT INTO products (product_id, product_name, product_type, product_unit, product_quantity, threshold, product_image)
@@ -214,16 +160,14 @@ router.post('/add-product', upload.single('product_image'), (req, res) => {
   connection.query(
     query,
     [product_id, product_name, product_type, product_unit, product_quantity, threshold, product_image],
-    (error, results) => {
+    (error) => {
       if (error) {
-        console.error('Database insertion error:', error); // Log the database error for debugging
+        console.error('Database insertion error:', error);
         return res.status(500).json({ error: 'Failed to add product' });
       }
-      res.status(201).json({ message: 'Product added successfully' });
+      res.status(201).json({ message: 'Product added successfully', product_id });
     }
   );
 });
-
-
 
 module.exports = router;
