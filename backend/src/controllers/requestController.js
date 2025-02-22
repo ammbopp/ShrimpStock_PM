@@ -242,26 +242,44 @@ router.get('/request-detail-2/:request_id', (req, res) => {
   });
 });
 
-
 // สร้าง Request ใหม่พร้อมกับสินค้าใน Cart
 router.post('/create-request', async (req, res) => {
   const { employee_id, cart } = req.body;
 
+  // ตรวจสอบข้อมูลที่จำเป็น
   if (!employee_id || !cart || cart.length === 0) {
     console.error('ข้อมูลไม่ครบถ้วน:', { employee_id, cart });
     return res.status(400).json({ message: 'ข้อมูลไม่ครบถ้วน' });
   }
 
   try {
+    // ดึง pond_used_id จาก POND_STAFFS ตาม employee_id
+    const pondUsedQuery = `
+      SELECT pond_used_id FROM POND_STAFFS WHERE employee_id = ? LIMIT 1`;
+    
+    const pondUsedId = await new Promise((resolve, reject) => {
+      connection.query(pondUsedQuery, [employee_id], (err, results) => {
+        if (err) {
+          console.error('Error querying pond_used_id:', err);
+          return reject(err);
+        }
+        if (results.length === 0) {
+          return reject(new Error(`ไม่พบข้อมูลสำหรับ employee_id: ${employee_id}`));
+        }
+        resolve(results[0].pond_used_id);
+      });
+    });
+
     // สร้าง request_id ใหม่ด้วย UUID
     const request_id = uuidv4();
 
     // เริ่มสร้าง Request ใหม่ในตาราง REQUESTS
     const createRequestQuery = `
-      INSERT INTO REQUESTS (request_id, employee_id, request_date, request_status)
-      VALUES (?, ?, NOW(), 'waiting')`;
+      INSERT INTO REQUESTS (request_id, employee_id, pond_used_id, request_date, request_status)
+      VALUES (?, ?, ?, NOW(), 'waiting')`;
+    
     await new Promise((resolve, reject) => {
-      connection.query(createRequestQuery, [request_id, employee_id], (err) => {
+      connection.query(createRequestQuery, [request_id, employee_id, pondUsedId], (err) => {
         if (err) {
           console.error('Error creating request:', err);
           return reject(err);
@@ -308,6 +326,7 @@ router.post('/create-request', async (req, res) => {
     const createRequestItemsQuery = `
       INSERT INTO REQUEST_LISTS (request_list_id, request_id, product_id, request_quantity, unit_id)
       VALUES ?`;
+    
     await new Promise((resolve, reject) => {
       connection.query(createRequestItemsQuery, [requestItems], (err) => {
         if (err) {
@@ -326,6 +345,8 @@ router.post('/create-request', async (req, res) => {
     res.status(500).json({ message: 'เกิดข้อผิดพลาดในการสร้างใบเบิก' });
   }
 });
+
+
 
 // อัปเดตสถานะใบเบิกเป็น done, accept
 router.put('/update-request-status/:request_id', (req, res) => {
