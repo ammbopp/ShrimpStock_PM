@@ -32,6 +32,15 @@ import Audit from './pages/Clerical/Audit';
 import AddOrdersToAudit from './pages/Clerical/AddOrdersToAudit';
 import AddOrderPayment from './pages/Clerical/AddOrderPayment';
 
+import KeeperHome from './pages/Keeper/KeeperHome';
+import KeeperProfile from './pages/Keeper/Profile';
+import KeeperProduct from './pages/Keeper/KeeperProduct';
+import KeeperRequest from './pages/Keeper/KeeperRequest';
+import KeeperOrder from './pages/Keeper/KeeperOrder';
+import KeeperAudit from './pages/Keeper/KeeperAudit';
+import KeeperPond from './pages/Keeper/KeeperPond';
+import Employee from './pages/Keeper/Employee';
+
 function App() {
   return (
     <Router>
@@ -68,6 +77,15 @@ function App() {
         <Route path="/clerical/audit" element={<Audit />} />
         <Route path="/clerical/add-orders/:audit_id" element={<AddOrdersToAudit />} />
         <Route path="/clerical/add-orders/payment" element={<AddOrderPayment />} />
+
+        <Route path="/keeper/home" element={<KeeperHome />} />
+        <Route path="/keeper/profile" element={<KeeperProfile />} />
+        <Route path="/keeper/products" element={<KeeperProduct />} />
+        <Route path="/keeper/requests" element={<KeeperRequest />} />
+        <Route path="/keeper/orders" element={<KeeperOrder />} />
+        <Route path="/keeper/audit" element={<KeeperAudit />} />
+        <Route path="/keeper/pond" element={<KeeperPond />} />
+        <Route path="/keeper/employee" element={<Employee />} />
 
       </Routes>
     </Router>
