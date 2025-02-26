@@ -9,6 +9,7 @@ const EmployeeController = require('./src/controllers/EmployeeController');
 const productController = require('./src/controllers/productController');
 const orderController = require('./src/controllers/orderController');
 const auditController = require('./src/controllers/auditController');
+const pondController = require('./src/controllers/pondController');
 
 const app = express();
 const port = 3001;
@@ -25,6 +26,7 @@ app.use('/api', EmployeeController);
 app.use('/api', productController);
 app.use('/api', orderController);
 app.use('/api', auditController);
+app.use('/api', pondController);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
