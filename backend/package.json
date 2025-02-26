@@ -29,6 +29,10 @@
     "uuid": "^11.0.2"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "@cucumber/cucumber": "^11.2.0",
+    "chai": "^5.2.0",
+    "expect": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.0.0"
   }
 }

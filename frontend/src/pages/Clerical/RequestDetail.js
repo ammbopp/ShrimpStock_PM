@@ -51,23 +51,21 @@ const RequestDetail = () => {
       });
 
       if (response.ok) {
-        alert('Request status updated to "accept"');
+        alert('Request has been accepted, and stock has been updated successfully.');
         navigate('/clerical/requests', {
-          state: {
-            employee_fname,
-            employee_lname,
-            employee_image,
-            employee_id,
-          },
+          state: { employee_fname, employee_lname, employee_image, employee_id },
         });
       } else {
         const errorData = await response.json();
-        console.error('Error updating request status:', errorData);
+        alert(`Error: ${errorData.message}`);
+        console.error('Error updating request:', errorData);
       }
     } catch (error) {
-      console.error('Error updating request status:', error);
+      alert('An error occurred while processing the request.');
+      console.error('Error processing request:', error);
     }
-  };
+};
+
 
   const handleRejectReceipt = async () => {
     try {

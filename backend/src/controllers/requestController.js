@@ -346,9 +346,35 @@ router.post('/create-request', async (req, res) => {
   }
 });
 
+const unitConversion = {
+  'Kilogram': { 'Gram': 1000 },
+  'Gram': { 'Kilogram': 0.001 },
+  'Liter': { 'Milliliter': 1000 },
+  'Milliliter': { 'Liter': 0.001 },
+  'Pound': { 'Kilogram': 0.453592 },
+  'Ton': { 'Kilogram': 1000 }
+};
 
+const convertUnit = (quantity, fromUnit, toUnit) => {
+  if (fromUnit === toUnit) return quantity;
+  if (unitConversion[fromUnit] && unitConversion[fromUnit][toUnit]) {
+    return quantity * unitConversion[fromUnit][toUnit];
+  }
+  return null;
+};
 
-// อัปเดตสถานะใบเบิกเป็น done, accept
+const getProductUnit = async (product_id) => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT product_unit FROM PRODUCTS WHERE product_id = ?`;
+    connection.query(query, [product_id], (error, results) => {
+      if (error) return reject(error);
+      if (results.length === 0) return reject('Product not found');
+      resolve(results[0].product_unit);
+    });
+  });
+};
+
+// อัปเดตสถานะใบเบิกเป็น done, accept และหักสต็อกสินค้าจากล็อตที่ใกล้หมดอายุก่อน
 router.put('/update-request-status/:request_id', (req, res) => {
   const { request_id } = req.params;
   const { status } = req.body;
@@ -357,26 +383,102 @@ router.put('/update-request-status/:request_id', (req, res) => {
     return res.status(400).json({ message: 'สถานะไม่ถูกต้อง' });
   }
 
-  const query = `
-    UPDATE REQUESTS
-    SET request_status = ?
-    WHERE request_id = ?;
-  `;
+  if (status === 'accept') {
+    // ดึงข้อมูลสินค้าทั้งหมดที่เกี่ยวข้องกับ request นี้
+    const query = `
+      SELECT rl.product_id, rl.request_quantity, rl.unit_id, u.unit_name, p.product_unit
+      FROM REQUEST_LISTS rl
+      JOIN PRODUCTS p ON rl.product_id = p.product_id
+      JOIN UNITS u ON rl.unit_id = u.unit_id
+      WHERE rl.request_id = ?;
+    `;
 
-  connection.query(query, [status, request_id], (error, results) => {
-    if (error) {
-      console.error('Error updating request status:', error);
-      return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปเดตสถานะใบเบิก' });
-    }
+    connection.query(query, [request_id], async (error, results) => {
+      if (error) {
+        console.error('Database error:', error);
+        return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า' });
+      }
+      if (results.length === 0) {
+        return res.status(404).json({ message: 'ไม่พบสินค้าในคำขอนี้' });
+      }
 
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ message: 'ไม่พบใบเบิกนี้' });
-    }
+      for (const item of results) {
+        const { product_id, request_quantity, unit_name, product_unit } = item;
+        let finalQuantity = request_quantity;
 
-    res.status(200).json({ message: 'อัปเดตสถานะใบเบิกสำเร็จ' });
-  });
+        if (unit_name !== product_unit) {
+          finalQuantity = convertUnit(request_quantity, unit_name, product_unit);
+          if (finalQuantity === null) {
+            return res.status(400).json({ message: `ไม่สามารถแปลงหน่วย ${unit_name} เป็น ${product_unit} ได้` });
+          }
+        }
+
+        // ดึงล็อตสินค้าตามวันหมดอายุจากเก่าสุดไปใหม่สุด
+        const lotQuery = `SELECT lot_id, lot_quantity FROM PRODUCT_LOTS WHERE product_id = ? ORDER BY lot_exp ASC;`;
+        connection.query(lotQuery, [product_id], (lotError, lotResults) => {
+          if (lotError) {
+            console.error('Error fetching product lots:', lotError);
+            return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงล็อตสินค้า' });
+          }
+
+          let remainingQuantity = finalQuantity;
+          for (const lot of lotResults) {
+            if (remainingQuantity <= 0) break;
+
+            const deductedQuantity = Math.min(lot.lot_quantity, remainingQuantity);
+            remainingQuantity -= deductedQuantity;
+
+            const updateLotQuery = `UPDATE PRODUCT_LOTS SET lot_quantity = lot_quantity - ? WHERE lot_id = ?;`;
+            connection.query(updateLotQuery, [deductedQuantity, lot.lot_id], (updateLotError) => {
+              if (updateLotError) {
+                console.error('Error updating lot quantity:', updateLotError);
+              }
+            });
+          }
+
+          if (remainingQuantity > 0) {
+            return res.status(400).json({ message: `สินค้า ${product_id} ไม่เพียงพอในสต็อก` });
+          }
+
+          // อัปเดตปริมาณสินค้าใน PRODUCTS หลังจากหักล็อต
+          const updateProductQuery = `UPDATE PRODUCTS SET product_quantity = product_quantity - ? WHERE product_id = ?;`;
+          connection.query(updateProductQuery, [finalQuantity, product_id], (updateProductError) => {
+            if (updateProductError) {
+              console.error('Error updating product quantity:', updateProductError);
+              return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปเดตปริมาณสินค้า' });
+            }
+          });
+        });
+      }
+
+      // อัปเดตสถานะใบเบิกเป็น accept
+      const updateRequestQuery = `UPDATE REQUESTS SET request_status = ? WHERE request_id = ?;`;
+      connection.query(updateRequestQuery, [status, request_id], (error, results) => {
+        if (error) {
+          console.error('Error updating request status:', error);
+          return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปเดตสถานะใบเบิก' });
+        }
+        if (results.affectedRows === 0) {
+          return res.status(404).json({ message: 'ไม่พบใบเบิกนี้' });
+        }
+        res.status(200).json({ message: 'อัปเดตสถานะใบเบิกสำเร็จ และหักสต็อกสินค้าเรียบร้อย' });
+      });
+    });
+  } else {
+    // อัปเดตเฉพาะสถานะถ้าไม่ใช่ accept
+    const query = `UPDATE REQUESTS SET request_status = ? WHERE request_id = ?;`;
+    connection.query(query, [status, request_id], (error, results) => {
+      if (error) {
+        console.error('Error updating request status:', error);
+        return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปเดตสถานะใบเบิก' });
+      }
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ message: 'ไม่พบใบเบิกนี้' });
+      }
+      res.status(200).json({ message: 'อัปเดตสถานะใบเบิกสำเร็จ' });
+    });
+  }
 });
-
 
 
 
