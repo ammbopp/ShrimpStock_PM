@@ -17,13 +17,14 @@ const OrderDetail = () => {
       employee_id
     } = location.state || {};
 
+
   const [orderDetails, setOrderDetails] = useState([]);
 
   const employeeImagePath = employee_image ? `/avatar/${employee_image}` : iconUser;
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
-        const url = `http://localhost:3001/api/orders/${order_id}`;
+        const url = `http://localhost:3001/api/order-detail-2/${order_id}`;
         console.log('Request URL:', url); 
         const response = await fetch(url);
         const data = await response.json();
