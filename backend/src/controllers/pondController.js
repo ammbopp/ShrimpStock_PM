@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const connection = require('../db/database');
+const { route } = require('./requestController');
 
 router.get('/ponds', (req, res) => {
     const sql = 'SELECT * FROM ponds'; 
@@ -13,6 +14,7 @@ router.get('/ponds', (req, res) => {
       res.json(results);
     });
   });
+  
   router.get('/pondsOpen', (req, res) => {
     const sql = 'SELECT * FROM ponds WHERE pond_status = "OPEN"';
     connection.query(sql, (error, results) => {
@@ -94,7 +96,54 @@ router.get('/ponds', (req, res) => {
     });
   });
   
+
+  router.put('/pond/status/close/:pond_id', (req, res) => {
+    const { pond_id } = req.params;          
+    const { pond_status } = req.body;             
+    
+    if (!['CLOSE'].includes(pond_status)) {
+      return res.status(400).json({ error: 'Invalid status. Must be "CLOSE" to close the pond.' });
+    }
   
+    const sql = 'UPDATE ponds SET pond_status = ? WHERE pond_id = ?';
+    connection.query(sql, [pond_status, pond_id], (error, results) => {
+      if (error) {
+        console.error('Error updating pond status:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ error: 'Pond not found' });
+      }
+      res.json({ message: `Pond status updated to ${pond_status}` });
+    });
+  });
+  
+  
+  
+router.post('/pond/status/open', async (req, res) => {
+    const { pond_id, staff } = req.body; // staff is array of employee_ids
+    try {
+      // 1) Generate new current_used_id (for example, auto_increment or your own logic)
+      //    If you have an AUTO_INCREMENT column in your DB, you can insert first, then retrieve lastInsertId, etc.
+      const new_current_used_id = await generateNewCurrentUsedIdSomehow(); // e.g., a function or an auto-increment
+      
+      // 2) Update ponds table
+      await connection.query('UPDATE ponds SET current_used_id = ? WHERE pond_id = ?', [new_current_used_id, pond_id]);
+  
+      // 3) Insert into pond_history
+      await connection.query('INSERT INTO pond_history (pond_used_id, pond_id) VALUES (?, ?)', [new_current_used_id, pond_id]);
+  
+      // 4) Insert each selected staff into pond_staffs
+      for (const empId of staff) {
+        await connection.query('INSERT INTO pond_staffs (employee_id, pond_used_id) VALUES (?, ?)', [empId, new_current_used_id]);
+      }
+  
+      res.json({ message: 'Pond staff updated successfully' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
   
 
 module.exports = router;
