@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import './Detail.css'; 
+
 import shrimpLogo from '../../assets/shrimp.png';
 import iconUser from '../../assets/bear.png';
 
@@ -14,7 +14,9 @@ const RequestDetail = () => {
       employee_fname,
       employee_lname,
       employee_image,
-      employee_id
+      employee_id,
+      pond_used_id,
+      pond_id
     } = location.state || {};
 
   const [requestDetails, setRequestDetails] = useState([]);
@@ -39,55 +41,6 @@ const RequestDetail = () => {
 
     fetchRequestDetails();
   }, [request_id]);
-
-  const handleConfirmReceipt = async () => {
-    try {
-      const response = await fetch(`http://localhost:3001/api/update-request-status/${request_id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: 'accept' }),
-      });
-
-      if (response.ok) {
-        alert('Request has been accepted, and stock has been updated successfully.');
-        navigate('/clerical/requests', {
-          state: { employee_fname, employee_lname, employee_image, employee_id },
-        });
-      } else {
-        const errorData = await response.json();
-        alert(`Error: ${errorData.message}`);
-        console.error('Error updating request:', errorData);
-      }
-    } catch (error) {
-      alert('An error occurred while processing the request.');
-      console.error('Error processing request:', error);
-    }
-};
-
-
-  const handleRejectReceipt = async () => {
-    try {
-      const response = await fetch(`http://localhost:3001/api/update-request-status/${request_id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'reject' }),
-      });
-
-      if (response.ok) {
-        alert('Request status updated to "reject"');
-        navigate('/clerical/requests', {
-          state: { employee_fname, employee_lname, employee_image, employee_id },
-        });
-      } else {
-        const errorData = await response.json();
-        console.error('Error updating request status:', errorData);
-      }
-    } catch (error) {
-      console.error('Error updating request status:', error);
-    }
-  };
 
   const [menuOpen, setMenuOpen] = useState(false);
   const toggleMenu = () => {
@@ -122,12 +75,14 @@ const RequestDetail = () => {
       {/* Side menu */}
       <div className={`side-menu ${menuOpen ? 'open' : ''}`}>
         <ul>
-          <li onClick={() => navigateToPage('/clerical/home')}>Home</li>
-          <li onClick={() => navigateToPage('/clerical/profile')}>Profile</li>
-          <li onClick={() => navigateToPage('/clerical/products')}>Products</li>
-          <li onClick={() => navigateToPage('/clerical/requests')}>Requests</li>
-          <li onClick={() => navigateToPage('/clerical/orders')}>Orders</li>
-          <li onClick={() => navigateToPage('/clerical/audit')}>Audits</li>
+          <li onClick={() => navigateToPage('/keeper/home')}>Home</li>
+          <li onClick={() => navigateToPage('/keeper/profile')}>Profile</li>
+          <li onClick={() => navigateToPage('/keeper/products')}>Products</li>
+          <li onClick={() => navigateToPage('/keeper/requests')}>Requests</li>
+          <li onClick={() => navigateToPage('/keeper/orders')}>Orders</li>
+          <li onClick={() => navigateToPage('/keeper/audit')}>Audits</li>
+          <li onClick={() => navigateToPage('/keeper/pond')}>Ponds</li>
+          <li onClick={() => navigateToPage('/keeper/employee')}>Employees</li>
           <li onClick={() => navigateToPage('/login')}>Logout</li>
         </ul>
       </div>
@@ -163,13 +118,6 @@ const RequestDetail = () => {
               </div>
             ))}
           </div>
-          {request_status && request_status.toLowerCase() === 'waiting' && (
-                    <div style={{ display: 'flex', gap: '2px', justifyContent: 'center' }}>
-                      <button className="reject-receipt-button" onClick={handleRejectReceipt}>Reject</button>
-                      <button className="confirm-receipt-button" onClick={handleConfirmReceipt}>Confirm</button>
-                    </div>
-                  )}
-
         </div>
         
       </div>

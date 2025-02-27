@@ -221,13 +221,14 @@ router.get('/request-detail-2/:request_id', (req, res) => {
   console.log('Received request_id:', request_id);
 
   const query = `
-    SELECT r.request_id, r.employee_id, r.request_date, r.request_status,
+    SELECT r.request_id, r.employee_id, r.request_date, r.request_status, r.pond_used_id, ph.pond_id, 
            e.employee_fname, e.employee_lname, e.employee_image,
            rl.product_id, p.product_name, rl.request_quantity, u.unit_name, p.product_image, p.product_type
     FROM REQUESTS r
     JOIN REQUEST_LISTS rl ON r.request_id = rl.request_id
     JOIN PRODUCTS p ON rl.product_id = p.product_id
     JOIN UNITS u ON rl.unit_id = u.unit_id
+    JOIN POND_HISTORY ph ON r.pond_used_id = ph.pond_used_id
     JOIN EMPLOYEES e ON r.employee_id = e.employee_id
     WHERE r.request_id = ?;
   `;
