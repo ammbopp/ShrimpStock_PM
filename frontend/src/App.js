@@ -86,7 +86,7 @@ function App() {
         <Route path="/keeper/orders" element={<KeeperOrder />} />
         <Route path="/keeper/audit" element={<KeeperAudit />} />
         <Route path="/keeper/pond" element={<KeeperPond />} />
-        <Route path="/keeper/pond/open" element={<KeeperOpenPond />} />
+        <Route path="/keeper/pond/open/:pond_id" element={<KeeperOpenPond />} />
         <Route path="/keeper/employee" element={<Employee />} />
 
       </Routes>

@@ -2,6 +2,17 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/database'); 
 
+router.get('/employee/getAllWorkerAcademic',(req,res)=>{
+  const sql = 'SELECT * FROM employees WHERE employee_position = "worker" OR employee_position = "academic"'; 
+    db.query(sql, (error, results) => {
+      if (error) {
+        console.error('Error retrieving worker:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+     
+      res.json(results);
+    });
+})
 
 router.get('/employee/getAllWorker',(req,res)=>{
   const sql = 'SELECT * FROM employees WHERE employee_position = "worker"'; 
@@ -81,4 +92,4 @@ module.exports = router;
 
 
 
-module.exports = router;
+
