@@ -1,0 +1,66 @@
+.container {
+    text-align: center;
+    font-family: 'Inika', serif;
+    background: #EEECE2;
+    padding: 2rem;
+    border-radius: 40px;
+    max-width: 800px;
+    margin: auto;
+  }
+  .title {
+    color: #BD5D39;
+    font-size: 48px;
+    font-weight: bold;
+  }
+  .filter-container {
+    margin-bottom: 1rem;
+  }
+  .filter-container span {
+    font-size: 18px;
+    margin-right: 0.5rem;
+  }
+  .filter-container button {
+    background: #BD5D39;
+    color: #EEECE2;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin: 0 0.2rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 18px;
+  }
+  .filter-container .active {
+    background: #8C3A23;
+  }
+  .employee-list {
+    margin-top: 1rem;
+  }
+  .employee-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 10px 100px;
+    border-radius: 20px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    margin-bottom: 1rem;
+  }
+  .employee-info {
+    display: flex;
+    align-items: center;
+  }
+  .employee-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 1rem;
+  }
+  .submit-button {
+    background: #2C3F50;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 20px;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+  }

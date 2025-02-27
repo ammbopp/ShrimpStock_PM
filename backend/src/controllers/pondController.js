@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const connection = require('../db/database');
 const { route } = require('./requestController');
+const { v4: uuidv4 } = require('uuid');
 
 router.get('/ponds', (req, res) => {
     const sql = 'SELECT * FROM ponds'; 
@@ -14,7 +15,7 @@ router.get('/ponds', (req, res) => {
       res.json(results);
     });
   });
-  
+
   router.get('/pondsOpen', (req, res) => {
     const sql = 'SELECT * FROM ponds WHERE pond_status = "OPEN"';
     connection.query(sql, (error, results) => {
@@ -118,32 +119,58 @@ router.get('/ponds', (req, res) => {
     });
   });
   
-  
-  
-router.post('/pond/status/open', async (req, res) => {
-    const { pond_id, staff } = req.body; // staff is array of employee_ids
+ 
+
+  router.post('/pond/status/open/:pond_id', async (req, res) => {
+    const { pond_id, staff } = req.body; 
+
     try {
-      // 1) Generate new current_used_id (for example, auto_increment or your own logic)
-      //    If you have an AUTO_INCREMENT column in your DB, you can insert first, then retrieve lastInsertId, etc.
-      const new_current_used_id = await generateNewCurrentUsedIdSomehow(); // e.g., a function or an auto-increment
-      
-      // 2) Update ponds table
-      await connection.query('UPDATE ponds SET current_used_id = ? WHERE pond_id = ?', [new_current_used_id, pond_id]);
-  
-      // 3) Insert into pond_history
-      await connection.query('INSERT INTO pond_history (pond_used_id, pond_id) VALUES (?, ?)', [new_current_used_id, pond_id]);
-  
-      // 4) Insert each selected staff into pond_staffs
-      for (const empId of staff) {
-        await connection.query('INSERT INTO pond_staffs (employee_id, pond_used_id) VALUES (?, ?)', [empId, new_current_used_id]);
-      }
-  
-      res.json({ message: 'Pond staff updated successfully' });
+        const new_current_used_id = uuidv4(); 
+
+        const [updatePondStatus] = await connection.promise().query(
+            'UPDATE ponds SET pond_status = "OPEN" WHERE pond_id = ?',
+            [pond_id]
+        );
+
+        if (updatePondStatus.affectedRows === 0) {
+            await db.query("ROLLBACK");
+            return res.status(400).json({ error: 'Error updating pond_status in ponds table' });
+        }
+
+        const [updatePondResult] = await connection.promise().query(
+            'UPDATE ponds SET current_used_id = ? WHERE pond_id = ?',
+            [new_current_used_id, pond_id]
+        );
+
+        if (updatePondResult.affectedRows === 0) {
+            return res.status(404).json({ error: 'Error updating current_used_id in ponds table' });
+        }
+
+        const [insertPondHistory] = await connection.promise().query(
+            'INSERT INTO pond_history (pond_used_id, pond_id) VALUES (?, ?)',
+            [new_current_used_id, pond_id]
+        );
+
+        if (insertPondHistory.affectedRows === 0) {
+            return res.status(404).json({ error: 'Error inserting into pond_history table' });
+        }
+
+        if (staff.length > 0) {
+            const staffValues = staff.map(empId => [empId, new_current_used_id]);
+
+            await connection.promise().query(
+                'INSERT INTO pond_staffs (employee_id, pond_used_id) VALUES ?',
+                [staffValues]
+            );
+        }
+
+        res.json({ message: 'Pond staff updated successfully' });
+
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
+        console.error('Database Error:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-  });
-  
+});
+
 
 module.exports = router;
