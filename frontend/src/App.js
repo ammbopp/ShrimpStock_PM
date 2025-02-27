@@ -38,6 +38,7 @@ import KeeperProduct from './pages/Keeper/KeeperProduct';
 import KeeperRequest from './pages/Keeper/KeeperRequest';
 import KeeperOrder from './pages/Keeper/KeeperOrder';
 import KeeperAudit from './pages/Keeper/KeeperAudit';
+import KeeperOpenPond from './pages/Keeper/KeeperOpenPond';
 import KeeperPond from './pages/Keeper/KeeperPond';
 import Employee from './pages/Keeper/Employee';
 
@@ -85,6 +86,7 @@ function App() {
         <Route path="/keeper/orders" element={<KeeperOrder />} />
         <Route path="/keeper/audit" element={<KeeperAudit />} />
         <Route path="/keeper/pond" element={<KeeperPond />} />
+        <Route path="/keeper/pond/open" element={<KeeperOpenPond />} />
         <Route path="/keeper/employee" element={<Employee />} />
 
       </Routes>

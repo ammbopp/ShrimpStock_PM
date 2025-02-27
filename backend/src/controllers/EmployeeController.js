@@ -1,7 +1,33 @@
-// src/controllers/EmployeeController.js
 const express = require('express');
 const router = express.Router();
-const db = require('../db/database'); // เชื่อมต่อกับ database
+const db = require('../db/database'); 
+
+
+router.get('/employee/getAllWorker',(req,res)=>{
+  const sql = 'SELECT * FROM employees WHERE employee_position = "worker"'; 
+    db.query(sql, (error, results) => {
+      if (error) {
+        console.error('Error retrieving worker:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+     
+      res.json(results);
+    });
+})
+
+
+router.get('/employee/getAllAcademic',(req,res)=>{
+  const sql = 'SELECT * FROM employees WHERE employee_position = "academic"'; 
+    db.query(sql, (error, results) => {
+      if (error) {
+        console.error('Error retrieving Academic:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+     
+      res.json(results);
+    });
+})
+
 
 // ฟังก์ชันสำหรับดึงข้อมูลพนักงานตาม employee_id
 router.get('/employee/:employee_id', (req, res) => {
