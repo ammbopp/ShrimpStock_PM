@@ -5,9 +5,10 @@ import shrimpLogo from '../../assets/shrimp.png';
 import iconUser from '../../assets/bear.png';
 import starIcon from '../../assets/star-dark.png';
 
-function CleriaHome(){
+function CleriaHome() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [requests, setRequests] = useState([]);
+  const [payments, setPendingPayments] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
   const { employee_fname, employee_lname, employee_image, employee_id, employee_position } = location.state || {};
@@ -42,7 +43,7 @@ function CleriaHome(){
         employee_lname,
         employee_image,
         employee_id,
-      },  
+      },
     });
     console.log(request);
   };
@@ -61,12 +62,29 @@ function CleriaHome(){
         console.error('Error fetching waiting requests:', error);
       }
     };
-  
+
     fetchWaitingRequests();
   }, []); // เพิ่ม [] เพื่อให้ useEffect ทำงานแค่ครั้งเดียว
-  
 
-  
+  // pulls data from audits on page load once, choosing only payment_status of 0
+  useEffect(() => {
+    const fetchPendingPayments = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/home/clerical/audits/waiting');
+        if (response.ok) {
+          const data = await response.json();
+          setPendingPayments(data);
+        } else {
+          console.error('Error fetching pending payments');
+        }
+      } catch (error) {
+        console.error('Error fetching pending payments:', error);
+      }
+    };
+
+    fetchPendingPayments();
+  }, []);
+
   return (
     <div className="page-container">
       {/* Side Menu */}
@@ -99,32 +117,56 @@ function CleriaHome(){
         </div>
 
         {/* Content Body */}
-        <h1>Welcome, <span id="username">{employee_fname || 'Guest'} {employee_lname || ''}</span> to Clerical Dashboard 👩🏼‍🏫</h1>
-        <hr />
-        <div className="notice-card">
-          <h2 className="notice-title">
-            <div className="notice-left">
-              <img src={starIcon} alt="Star Icon" className="notice-icon" />
-              <span>Notice : ใบเบิกล่าสุด</span>
-            </div>
-            <span className="view-all" style={{ cursor: 'pointer', color: '#BD5D3A' }} onClick={() => navigateToPage('/clerical/requests')}>view all</span>
-          </h2>
-          <div className="request-list">
-            {requests.length > 0 ? (
-              requests.map((request) => (
-                <div key={request.request_id} className="request-card">
-                  <div className="request-info">
-                    <p><strong>📍 Request ID:</strong> {request.request_id}</p>
-                    <p><strong>Date:</strong> {new Date(request.request_date).toLocaleDateString()}</p>
+        <div>
+          <h1>Welcome, <span id="username">{employee_fname || 'Guest'} {employee_lname || ''}</span> to Clerical Dashboard 👩🏼‍🏫</h1>
+          <hr />
+          <div className="notice-card">
+            <h2 className="notice-title">
+              <div className="notice-left">
+                <img src={starIcon} alt="Star Icon" className="notice-icon" />
+                <span>Notice : ใบเบิกล่าสุด</span>
+              </div>
+              <span className="view-all" style={{ cursor: 'pointer', color: '#BD5D3A' }} onClick={() => navigateToPage('/clerical/requests')}>view all</span>
+            </h2>
+            <div className="request-list">
+              {requests.length > 0 ? (
+                requests.map((request) => (
+                  <div key={request.request_id} className="request-card">
+                    <div className="request-info">
+                      <p><strong>📍 Request ID:</strong> {request.request_id}</p>
+                      <p><strong>Date:</strong> {new Date(request.request_date).toLocaleDateString()}</p>
+                    </div>
+                    <div className="request-status">
+                      <p className={`status ${request.request_status.toLowerCase()}`}>{request.request_status}</p>
+                      <button className="view-details-button" onClick={() => navigateToDetail(request)}>View Details</button>
+                    </div>
                   </div>
-                  <div className="request-status">
-                    <p className={`status ${request.request_status.toLowerCase()}`}>{request.request_status}</p>
-                    <button className="view-details-button" onClick={() => navigateToDetail(request)}>View Details</button>
+                ))
+              ) : (
+                <p>No recent waiting requests found.</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h1>Pending Payments</h1>
+          <div className="request-list">
+            {payments.length > 0 ? (
+              payments.map((payment) => (
+                <div key={payment.audit_id} className="request-card">
+                  <div className="request-info">
+                    <p><strong>📍 Request ID:</strong> {payment.audit_id}</p>
+                    <p><strong>Date:</strong> {new Date(payment.payment_due_date).toLocaleDateString()}</p>
+                    {/* if payment_due_date is over today then displays "Overdue", if not then display "Pending" */}
+                    <p><strong>Total Amount:</strong> {payment.total_order_amount} THB</p>
+                    <p><strong>Payment Due Date:</strong> {new Date(payment.payment_due_date).toLocaleDateString()}</p>
+                    <p style={{}}><strong>Status:</strong> {new Date() > new Date(payment.payment_due_date) ? 'Overdue' : 'Pending'}</p>
                   </div>
                 </div>
               ))
             ) : (
-              <p>No recent waiting requests found.</p>
+              <p>No recent pending payments.</p>
             )}
           </div>
         </div>

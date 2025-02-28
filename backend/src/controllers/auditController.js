@@ -132,6 +132,32 @@ router.get('/audits/latest/total', (req, res) => {
   });
 });
 
+// adds api endpoint to query audits only with the status of payment_status 0
+router.get('/home/clerical/audits/waiting', async (req, res) => {
+
+  // Join AUDITS and AUDIT_LISTS tables to get order_amount
+  const query = `
+    SELECT a.*, 
+           COALESCE(SUM(al.order_amount), 0) as total_order_amount,
+           COUNT(al.audit_list_id) as order_count
+    FROM AUDITS a
+    LEFT JOIN AUDIT_LISTS al ON a.audit_id = al.audit_id
+    WHERE a.payment_status = 0
+    GROUP BY a.audit_id
+    ORDER BY a.payment_due_date DESC;
+  `;
+
+  connection.query(query, (error, results) => {
+    if (error) {
+      console.error('Database query error:', error);
+      res.status(500).json({ error: 'Database query error' });
+      return;
+    }
+
+    res.status(200).json(results);
+  });
+
+});
 
 // Update payment status
 router.post('/audits/:audit_id/confirm-payment', (req, res) => {
