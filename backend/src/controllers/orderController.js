@@ -362,4 +362,52 @@ router.put('/update-order-status/:order_id', (req, res) => {
   });
 });
 
+router.get('/orders2/:order_id', (req, res) => {
+  const { order_id } = req.params;
+  console.log("Requested Order ID:", order_id);
+
+  const query = `
+    SELECT o.order_id, o.employee_id, o.order_date, o.order_status,
+           e.employee_fname, e.employee_lname, e.employee_image,
+           ol.product_id, p.product_name, ol.order_quantity, u.unit_name, p.product_image
+    FROM ORDERS o
+    LEFT JOIN ORDER_LISTS ol ON o.order_id = ol.order_id
+    LEFT JOIN PRODUCTS p ON ol.product_id = p.product_id
+    LEFT JOIN UNITS u ON ol.unit_id = u.unit_id
+    LEFT JOIN EMPLOYEES e ON o.employee_id = e.employee_id
+    WHERE TRIM(o.order_id) = ?;
+  `;
+
+  connection.query(query, [order_id], (error, results) => {
+    if (error) {
+      console.error('Database error:', error);
+      return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูลใบเบิก' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'ไม่พบข้อมูลใบเบิก' });
+    }
+
+    // ✅ รวมข้อมูลเป็น Object เดียว
+    const orderData = {
+      order_id: results[0].order_id,
+      employee_id: results[0].employee_id,
+      order_date: results[0].order_date,
+      order_status: results[0].order_status,
+      products: results.map(row => ({
+        product_id: row.product_id,
+        product_name: row.product_name,
+        order_quantity: row.order_quantity,
+        unit_name: row.unit_name,
+        product_image: row.product_image
+      })),
+    };
+
+    res.status(200).json(orderData);
+  });
+});
+
+
+
+
 module.exports = router;
