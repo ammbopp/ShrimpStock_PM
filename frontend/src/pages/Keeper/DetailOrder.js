@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import './DetailOrder.css'; 
 import shrimpLogo from '../../assets/shrimp.png';
 import iconUser from '../../assets/bear.png';
 import cartIcon from '../../assets/cart.png';

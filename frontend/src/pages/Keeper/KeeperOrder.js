@@ -86,7 +86,7 @@ const KeeperOrder = () => {
 
       {/* Main content */}
       <div className="content" >
-        <h1>Hey, <span id="username">{employee_fname || 'Guest'} {employee_lname || ''}</span> let's check stock! 👀</h1>
+        <h1>Hey, <span id="username">{employee_fname || 'Guest'} {employee_lname || ''}</span> let's order products! 👀</h1>
         <hr />
 
         <div className="notice-card">
