@@ -333,7 +333,24 @@ router.post('/create-order', async (req, res) => {
   }
 });
 
-// อัปเดตสถานะใบสั่งซื้อเป็น done, accept, reject
+const unitConversion = {
+  'Kilogram': { 'Gram': 1000 },
+  'Gram': { 'Kilogram': 0.001 },
+  'Liter': { 'Milliliter': 1000 },
+  'Milliliter': { 'Liter': 0.001 },
+  'Pound': { 'Kilogram': 0.453592 },
+  'Ton': { 'Kilogram': 1000 }
+};
+
+const convertUnit = (quantity, fromUnit, toUnit) => {
+  if (fromUnit === toUnit) return quantity;
+  if (unitConversion[fromUnit] && unitConversion[fromUnit][toUnit]) {
+    return quantity * unitConversion[fromUnit][toUnit];
+  }
+  return null;
+};
+
+// update order status : accept will crate product_lot and product:peoduct_qua+order_qua , reject, done
 router.put('/update-order-status/:order_id', (req, res) => {
   const { order_id } = req.params;
   const { status } = req.body;
@@ -342,26 +359,85 @@ router.put('/update-order-status/:order_id', (req, res) => {
     return res.status(400).json({ message: 'สถานะไม่ถูกต้อง' });
   }
 
-  const query = `
-    UPDATE ORDERS
-    SET order_status = ?
-    WHERE order_id = ?;
-  `;
+  if (status === 'accept') {
+    const query = `
+      SELECT ol.product_id, ol.order_quantity, p.product_unit
+      FROM ORDER_LISTS ol
+      JOIN PRODUCTS p ON ol.product_id = p.product_id
+      WHERE ol.order_id = ?;
+    `;
 
-  connection.query(query, [status, order_id], (error, results) => {
-    if (error) {
-      console.error('Error updating order status:', error);
-      return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปเดตสถานะใบสั่งซื้อ' });
-    }
+    connection.query(query, [order_id], async (error, results) => {
+      if (error) {
+        console.error('Database error:', error);
+        return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า' });
+      }
+      if (results.length === 0) {
+        return res.status(404).json({ message: 'ไม่พบสินค้าในคำสั่งซื้อนี้' });
+      }
 
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ message: 'ไม่พบใบสั่งซื้อนี้' });
-    }
+      for (const item of results) {
+        const { product_id, order_quantity, product_unit } = item;
 
-    res.status(200).json({ message: 'อัปเดตสถานะใบสั่งซื้อสำเร็จ' });
-  });
+        // สร้าง lot ใหม่สำหรับสินค้าแต่ละตัว
+        const lot_id = uuidv4();
+        const lot_date = new Date();
+        const lot_exp = new Date();
+        lot_exp.setMonth(lot_exp.getMonth() + 6); // ตั้งค่าหมดอายุใน 6 เดือน (ค่อยทำเป็นให้เพิ่มเอาเองได้ทีหลัง)
+
+        const insertLotQuery = `
+          INSERT INTO PRODUCT_LOTS (lot_id, product_id, lot_date, lot_exp, lot_quantity)
+          VALUES (?, ?, ?, ?, ?);
+        `;
+
+        connection.query(insertLotQuery, [lot_id, product_id, lot_date, lot_exp, order_quantity], (insertError) => {
+          if (insertError) {
+            console.error('Error inserting new product lot:', insertError);
+            return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการสร้างล็อตสินค้า' });
+          }
+        });
+
+        // อัปเดตปริมาณสินค้าใน PRODUCTS
+        const updateProductQuery = `UPDATE PRODUCTS SET product_quantity = product_quantity + ? WHERE product_id = ?;`;
+        connection.query(updateProductQuery, [order_quantity, product_id], (updateError) => {
+          if (updateError) {
+            console.error('Error updating product quantity:', updateError);
+            return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปเดตจำนวนสินค้า' });
+          }
+        });
+      }
+
+      // อัปเดตสถานะเป็น accept
+      const updateOrderQuery = `UPDATE ORDERS SET order_status = ? WHERE order_id = ?;`;
+      connection.query(updateOrderQuery, [status, order_id], (error, results) => {
+        if (error) {
+          console.error('Error updating order status:', error);
+          return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปเดตสถานะใบสั่งซื้อ' });
+        }
+        if (results.affectedRows === 0) {
+          return res.status(404).json({ message: 'ไม่พบใบสั่งซื้อนี้' });
+        }
+        res.status(200).json({ message: 'อัปเดตสถานะใบสั่งซื้อสำเร็จ และสร้างล็อตสินค้าเรียบร้อย' });
+      });
+    });
+  } else {
+    // อัปเดตสถานะที่ไม่ใช่ accept
+    const query = `UPDATE ORDERS SET order_status = ? WHERE order_id = ?;`;
+    connection.query(query, [status, order_id], (error, results) => {
+      if (error) {
+        console.error('Error updating order status:', error);
+        return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปเดตสถานะใบสั่งซื้อ' });
+      }
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ message: 'ไม่พบใบสั่งซื้อนี้' });
+      }
+      res.status(200).json({ message: 'อัปเดตสถานะใบสั่งซื้อสำเร็จ' });
+    });
+  }
 });
 
+
+// ดึงข้อมูลใบออเดอร์ใน audit payment ตอนกรอก
 router.get('/orders2/:order_id', (req, res) => {
   const { order_id } = req.params;
   console.log("Requested Order ID:", order_id);
@@ -387,8 +463,6 @@ router.get('/orders2/:order_id', (req, res) => {
     if (results.length === 0) {
       return res.status(404).json({ message: 'ไม่พบข้อมูลใบเบิก' });
     }
-
-    // ✅ รวมข้อมูลเป็น Object เดียว
     const orderData = {
       order_id: results[0].order_id,
       employee_id: results[0].employee_id,
