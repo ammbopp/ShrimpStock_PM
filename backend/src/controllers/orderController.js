@@ -481,7 +481,4 @@ router.get('/orders2/:order_id', (req, res) => {
   });
 });
 
-
-
-
 module.exports = router;
