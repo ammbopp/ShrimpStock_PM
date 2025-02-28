@@ -60,24 +60,71 @@
     transition: background-color 0.3s ease;
 }
 
-/**    .remove-item-button {
-        background-color: red;
-        color: white;
-        padding: 8px 12px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: 0.3s;
-    }
+.remove-item-button {
+    background-color: red;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
     
-    .remove-item-button:hover {
-        background-color: darkred;
-    }
-*/
+.remove-item-button:hover {
+    background-color: darkred;
+}
+
     .confirm-order-button:hover {
         background-color: #9b472d;
     } 
 
+    .edit-item-button {
+        background-color: #F4A261; 
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        margin-right: 5px;
+    }
+    
+    .edit-item-button:hover {
+        background-color: #E76F51;
+    }
+    
+    .confirm-edit-button {
+        background-color: #2A9D8F; 
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        margin-right: 5px;
+    }
+    
+    .confirm-edit-button:hover {
+        background-color: #21867A;
+    }
+    
+    .cancel-edit-button {
+        background-color: #E9C46A; 
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+    
+    .cancel-edit-button:hover {
+        background-color: #D4A017;
+    }
+    
 
 .cart-icon {
     position: fixed;

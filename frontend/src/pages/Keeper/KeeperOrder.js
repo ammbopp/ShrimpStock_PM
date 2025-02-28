@@ -10,11 +10,21 @@ const KeeperOrder = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { employee_fname, employee_lname, employee_image, employee_id, employee_position } = location.state || {};
-  const [cart, setCart] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCart(savedCart);
+    const updateCart = () => {
+      const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
+      setCartItems(savedCart);
+    };
+
+    updateCart();
+    
+    window.addEventListener('storage', updateCart);
+    
+    return () => {
+      window.removeEventListener('storage', updateCart);
+    };
   }, []);
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -48,9 +58,17 @@ const KeeperOrder = () => {
 
   const handleProductTypeChange = (e) => setProductType(e.target.value);
 
-  const navigateToAddProduct = () => {
-    navigate('/clerical/add-product', { 
-      state: { employee_fname, employee_lname, employee_image, employee_id, employee_position } 
+  const navigateToCart = () => {
+    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    navigate('/keeper/cart', { 
+      state: { 
+        employee_fname, 
+        employee_lname, 
+        employee_image, 
+        employee_id, 
+        employee_position, 
+        cart: savedCart 
+      } 
     });
   };
 
@@ -135,15 +153,10 @@ const KeeperOrder = () => {
             ))}
           </div>
 
-
-
-          <div className="cart-icon" onClick={() => navigate('/keeper/cart', { 
-            state: { employee_fname, employee_lname, employee_image, employee_id, employee_position, cart } 
-          })}>
+          <div className="cart-icon" onClick={navigateToCart}>
             <img src={cartIcon} alt="Cart Icon" />
-            <span className="cart-count">{cart?.length || 0}</span>
+            <span className="cart-count">{cartItems.length}</span>
           </div>
-
 
         </div>
       </div>
