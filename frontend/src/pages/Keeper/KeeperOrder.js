@@ -4,36 +4,72 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import shrimpLogo from '../../assets/shrimp.png';
 import iconUser from '../../assets/bear.png';
 import starIcon from '../../assets/star-dark.png';
+import cartIcon from '../../assets/cart.png';
 
-function KeeperOrder(){
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [requests, setRequests] = useState([]);
+const KeeperOrder = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { employee_fname, employee_lname, employee_image, employee_id, employee_position } = location.state || {};
+  const [cart, setCart] = useState([]);
+
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    setCart(savedCart);
+  }, []);
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [productType, setProductType] = useState('all');
 
   const employeeImagePath = employee_image ? `/avatar/${employee_image}` : iconUser;
 
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const query = productType !== 'all' ? `?product_type=${productType}` : '';
+      const response = await fetch(`http://localhost:3001/api/products${query}`);
+      
+      if (!response.ok) {
+        console.error('Error fetching products:', response.statusText);
+        return;
+      }
+      
+      const data = await response.json();
+      setProducts(data);
+    };
+
+    fetchProducts();
+  }, [productType]);
+
+  const toggleMenu = () => setMenuOpen(!menuOpen);
 
   const navigateToPage = (path) => {
-    navigate(path, {
-      state: {
-        employee_id,
-        employee_fname,
-        employee_lname,
-        employee_image,
-        employee_position,
-      },
+    navigate(path, { state: { employee_fname, employee_lname, employee_image, employee_id, employee_position} });
+  };
+
+  const handleProductTypeChange = (e) => setProductType(e.target.value);
+
+  const navigateToAddProduct = () => {
+    navigate('/clerical/add-product', { 
+      state: { employee_fname, employee_lname, employee_image, employee_id, employee_position } 
     });
-    console.log('Employee ID:', employee_id);
   };
 
   return (
     <div className="page-container">
-      {/* Side Menu */}
+      <div className="navbar" style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '60%', zIndex: 1000, backgroundColor: '#FFFFFF', boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.1)' }}>
+        <div className="logo">
+          <img src={shrimpLogo} alt="Shrimp Logo" />
+          <button className="menu-button" onClick={toggleMenu}>
+            <span className="menu-icon">&#9776;</span>
+          </button>
+          <span>Shrimp Farm</span>
+        </div>
+        <div className="user-profile">
+          <img src={employeeImagePath} alt="User Profile" style={{ width: '40px', height: '40px', borderRadius: '50%' }} />
+        </div>
+      </div>
+
+      {/* Side menu */}
       <div className={`side-menu ${menuOpen ? 'open' : ''}`}>
         <ul>
           <li onClick={() => navigateToPage('/keeper/home')}>Home</li>
@@ -48,29 +84,71 @@ function KeeperOrder(){
         </ul>
       </div>
 
-      {/* Main Content */}
-      <div className="content">
-        {/* Navbar */}
-        <div className="navbar">
-          <div className="logo">
-            <img src={shrimpLogo} alt="Shrimp Logo" />
-            <button className="menu-button" onClick={toggleMenu}>
-              <span className="menu-icon">&#9776;</span>
-            </button>
-            <span>Shrimp Farm</span>
-          </div>
-          <div className="user-profile">
-            <img src={employeeImagePath} alt="User Profile" style={{ width: '40px', height: '40px', borderRadius: '50%' }} />
-          </div>
-        </div>
+      {/* Main content */}
+      <div className="content" >
+        <h1>Hey, <span id="username">{employee_fname || 'Guest'} {employee_lname || ''}</span> let's order products! 👀</h1>
+        <hr />
 
-        {/* Content Body */}
-        
-        
+        <div className="notice-card">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div className="notice-left">
+              <img src={starIcon} alt="Star Icon" className="notice-icon" />
+              <span>
+                {productType === 'all' && '📦 Products: All'}
+                {productType === 'Food' && '🧀 Products: Food'}
+                {productType === 'Chemical' && '🧪 Products: Chemical'}
+              </span>
+            </div>
+            <div className="filters1">
+              <label>Filter by Type:</label>
+              <select onChange={handleProductTypeChange} value={productType}>
+                <option value="all">All</option>
+                <option value="Food">Food</option>
+                <option value="Chemical">Chemical</option>
+              </select>
+            </div>
+          </div>
+         
+
+          <div className="product-list">
+            {products.map((product) => (
+              <div key={product.product_id} className="product-item">
+                <img src={`/product/${product.product_image}`} alt={product.product_name} 
+                style={{ width: '100px', height: '100px', objectFit: 'cover' }}/>
+                <h3>{product.product_name}</h3>
+
+                <button onClick={() => navigate(`/keeper/detail-order/${product.product_id}`, {
+                    state: {
+                        product_id: product.product_id,
+                        product_name: product.product_name,
+                        product_image: product.product_image,
+                        employee_fname,
+                        employee_lname,
+                        employee_image,
+                        employee_id,
+                        employee_position,
+                    },
+                })} style={{ marginTop: '5px' }}>
+                    View Details
+                </button>
+              </div>
+            ))}
+          </div>
+
+
+
+          <div className="cart-icon" onClick={() => navigate('/keeper/cart', { 
+            state: { employee_fname, employee_lname, employee_image, employee_id, employee_position, cart } 
+          })}>
+            <img src={cartIcon} alt="Cart Icon" />
+            <span className="cart-count">{cart?.length || 0}</span>
+          </div>
+
+
+        </div>
       </div>
     </div>
   );
-
-}
+};
 
 export default KeeperOrder;
