@@ -17,7 +17,6 @@ const port = 3001;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: 'http://localhost:3000/' }));
 app.use('/product', express.static(path.join(__dirname, '../../frontend/public/product')));
 
 app.post('/api/login', loginController.login);
