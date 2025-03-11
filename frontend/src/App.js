@@ -38,12 +38,15 @@ import KeeperProduct from './pages/Keeper/KeeperProduct';
 import KeeperRequest from './pages/Keeper/KeeperRequest';
 import KeeperOrder from './pages/Keeper/KeeperOrder';
 import KeeperAudit from './pages/Keeper/KeeperAudit';
-import KeeperOpenPond from './pages/Keeper/KeeperOpenPond';
 import KeeperPond from './pages/Keeper/KeeperPond';
 import Employee from './pages/Keeper/Employee';
 import RequestDetail from './pages/Keeper/RequestDetail';
 import DetailOrder from './pages/Keeper/DetailOrder';
 import KeeperCart from './pages/Keeper/KeeperCart';
+import KeeperPondDetail from './pages/Keeper/KeeperPondDetail';
+import KeeperViewDetailPond from './pages/Keeper/KeeperViewDetailPond';
+import KeeperOpenPond from './pages/Keeper/KeeperOpenPond';
+
 
 function App() {
   return (
@@ -89,12 +92,14 @@ function App() {
         <Route path="/keeper/orders" element={<KeeperOrder />} />
         <Route path="/keeper/audit" element={<KeeperAudit />} />
         <Route path="/keeper/pond" element={<KeeperPond />} />
-        <Route path="/keeper/pond/open/:pond_id" element={<KeeperOpenPond />} />
         <Route path="/keeper/employee" element={<Employee />} />
         <Route path="/keeper/request-detail" element={<RequestDetail />} />
         <Route path="/keeper/detail-order/:product_id" element={<DetailOrder />} />
         <Route path="/keeper/cart" element={<KeeperCart />} />
-
+        <Route path="/keeper/pond/:pond_id" element={<KeeperPondDetail />} />
+        <Route path="/keeper/pond/history/:pond_used_id" element={<KeeperViewDetailPond />} />
+        <Route path="/keeper/pond/open/:pond_id" element={<KeeperOpenPond />} />
+        
       </Routes>
     </Router>
   );

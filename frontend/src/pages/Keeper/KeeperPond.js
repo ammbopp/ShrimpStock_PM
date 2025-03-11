@@ -1,38 +1,104 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-// import ''; 
+import './KeeperPond.css'
 import shrimpLogo from '../../assets/shrimp.png';
 import iconUser from '../../assets/bear.png';
 import starIcon from '../../assets/star-dark.png';
 
-function KeeperPond(){
+const KeeperPond = () => {
+  const [ponds, setPonds] = useState([]);
+  const [filter, setFilter] = useState('all');
   const [menuOpen, setMenuOpen] = useState(false);
-  const [requests, setRequests] = useState([]);
-  const location = useLocation();
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { employee_fname, employee_lname, employee_image, employee_id, employee_position } = location.state || {};
+  
+  // Fetch all ponds on component mount
+  useEffect(() => {
+    fetchPonds();
+  }, []);
 
-  const employeeImagePath = employee_image ? `/avatar/${employee_image}` : iconUser;
+  // Fetch ponds based on filter
+  useEffect(() => {
+    if (filter === 'all') {
+      fetchPonds();
+    } else if (filter === 'open') {
+      fetchOpenPonds();
+    } else if (filter === 'close') {
+      fetchClosedPonds();
+    }
+  }, [filter]);
+
+  // Function to fetch all ponds
+  const fetchPonds = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/ponds');
+      if (!response.ok) {
+        throw new Error('Failed to fetch ponds');
+      }
+      const data = await response.json();
+      setPonds(data);
+    } catch (error) {
+      console.error('Error fetching ponds:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to fetch open ponds
+  const fetchOpenPonds = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/pondsOpen');
+      if (!response.ok) {
+        throw new Error('Failed to fetch open ponds');
+      }
+      const data = await response.json();
+      setPonds(data);
+    } catch (error) {
+      console.error('Error fetching open ponds:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to fetch closed ponds
+  const fetchClosedPonds = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/pondsClose');
+      if (!response.ok) {
+        throw new Error('Failed to fetch closed ponds');
+      }
+      const data = await response.json();
+      setPonds(data);
+    } catch (error) {
+      console.error('Error fetching closed ponds:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMoreInfo = (pondId) => {
+    console.log(`Navigating to more info for pond ${pondId}`);
+    // Navigate to pond details page
+    navigate(`/keeper/pond/${pondId}`);
+  };
+
+  const navigateToPage = (path) => {
+    navigate(path);
+    setMenuOpen(false);
+  };
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
 
-  const navigateToPage = (path) => {
-    navigate(path, {
-      state: {
-        employee_id,
-        employee_fname,
-        employee_lname,
-        employee_image,
-        employee_position,
-      },
-    });
-    console.log('Employee ID:', employee_id);
-  };
+  // For employee image path (using iconUser as default)
+  const employeeImagePath = iconUser;
 
   return (
-    <div className="page-container">
+    <div className="min-h-screen bg-stone-100 p-4 flex flex-col items-center">
       {/* Side Menu */}
       <div className={`side-menu ${menuOpen ? 'open' : ''}`}>
         <ul>
@@ -48,29 +114,80 @@ function KeeperPond(){
         </ul>
       </div>
 
-      {/* Main Content */}
-      <div className="content">
-        {/* Navbar */}
-        <div className="navbar">
-          <div className="logo">
-            <img src={shrimpLogo} alt="Shrimp Logo" />
-            <button className="menu-button" onClick={toggleMenu}>
-              <span className="menu-icon">&#9776;</span>
-            </button>
-            <span>Shrimp Farm</span>
-          </div>
-          <div className="user-profile">
-            <img src={employeeImagePath} alt="User Profile" style={{ width: '40px', height: '40px', borderRadius: '50%' }} />
-          </div>
+      {/* Header - Using the new navbar structure */}
+      <div className="navbar">
+        <div className="logo">
+          <img src={shrimpLogo} alt="Shrimp Logo" />
+          <button className="menu-button" onClick={toggleMenu}>
+            <span className="menu-icon">&#9776;</span>
+          </button>
+          <span>Shrimp Farm</span>
         </div>
+        <div className="user-profile">
+          <img src={employeeImagePath} alt="User Profile" className="user-avatar" />
+        </div>
+      </div>
 
-        {/* Content Body */}
-        
-        
+      {/* Filter Buttons */}
+      <div className="w-full max-w-4xl flex justify-end items-center mb-4 gap-2">
+        <span className="text-gray-600 text-lg">filter</span>
+        <button 
+          className={`px-8 py-2 rounded-full ${filter === 'all' ? 'bg-blue-500 text-white' : 'bg-blue-400 text-white'}`}
+          onClick={() => setFilter('all')}
+        >
+          ALL
+        </button>
+        <button 
+          className={`px-8 py-2 rounded-full ${filter === 'open' ? 'bg-green-500 text-white' : 'bg-green-400 text-white'}`}
+          onClick={() => setFilter('open')}
+        >
+          OPEN
+        </button>
+        <button 
+          className={`px-8 py-2 rounded-full ${filter === 'close' ? 'bg-red-600 text-white' : 'bg-red-500 text-white'}`}
+          onClick={() => setFilter('close')}
+        >
+          CLOSE
+        </button>
+      </div>
+
+      {/* Pond Management Container */}
+      <div className="w-full max-w-4xl bg-white rounded-3xl p-8 shadow-md">
+        <h2 className="text-3xl font-bold text-orange-700 mb-8">Pond Management</h2>
+
+        {loading ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">Loading ponds...</p>
+          </div>
+        ) : ponds.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">No ponds found</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {ponds.map((pond) => (
+              <div key={pond.pond_id} className="border border-gray-200 rounded-xl p-6 flex justify-between items-center">
+                <h3 className="text-xl font-semibold">Pond {pond.pond_id}</h3>
+                <div className="flex items-center gap-2">
+                  {pond.pond_status === 'OPEN' ? (
+                    <span className="text-green-500 font-medium">OPEN</span>
+                  ) : (
+                    <span className="text-red-500 font-medium">CLOSE</span>
+                  )}
+                  <button 
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg"
+                    onClick={() => handleMoreInfo(pond.pond_id)}
+                  >
+                    More Info
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
+};
 
-}
-
-export default KeeperPond;
+export default KeeperPond
