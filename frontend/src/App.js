@@ -46,6 +46,8 @@ import KeeperCart from './pages/Keeper/KeeperCart';
 import KeeperPondDetail from './pages/Keeper/KeeperPondDetail';
 import KeeperViewDetailPond from './pages/Keeper/KeeperViewDetailPond';
 import KeeperOpenPond from './pages/Keeper/KeeperOpenPond';
+import EmployeeDetail from './pages/Keeper/EmployeeDatail';
+import CreateAcc from './pages/Keeper/CreateAcc';
 
 
 function App() {
@@ -99,6 +101,8 @@ function App() {
         <Route path="/keeper/pond/:pond_id" element={<KeeperPondDetail />} />
         <Route path="/keeper/pond/history/:pond_used_id" element={<KeeperViewDetailPond />} />
         <Route path="/keeper/pond/open/:pond_id" element={<KeeperOpenPond />} />
+        <Route path="/keeper/employee/details/:id" element={<EmployeeDetail />} />
+        <Route path="/keeper/employee/create" element={<CreateAcc />} />
         
       </Routes>
     </Router>
