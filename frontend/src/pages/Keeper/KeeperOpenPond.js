@@ -172,50 +172,9 @@ function KeeperOpenPond() {
         </div>
 
         </div>
-        {/* <h1 className="title">OPEN PONE {'{POND_ID}'}</h1>
-        <div className="container">
-      
-      
-      <div className="filter-container">
-        <span>Filter:</span>
-        <button className={filter === "Worker" ? "active" : ""} onClick={() => handleFilterChange("Worker")}>
-          Worker
-        </button>
-        <button className={filter === "Academic" ? "active" : ""} onClick={() => handleFilterChange("Academic")}>
-          Academic
-        </button>
-        <button className={filter === "All" ? "active" : ""} onClick={() => handleFilterChange("All")}>
-          All
-        </button>
-      </div>
-
-      <div className="employee-list" >
-        {employees.map((emp) => (
-          <div className="employee-card" key={emp.employee_id}>
-            <div className="employee-info">
-              <img src={emp.employee_image} alt="Profile" className="employee-image" />
-              <div>
-                <p>Name: {emp.employee_fname} {emp.employee_lname}</p>
-                <p>Age: {emp.employee_age}</p>
-                <p>Position: {emp.employee_position}</p>
-              </div>
-            </div>
-            <input
-              type="checkbox"
-              checked={selectedEmployees.includes(emp.employee_id)}
-              onChange={() => handleCheckboxChange(emp.employee_id)}
-              style={{ appearance: "none" }}
-            />
-          </div>
-        ))}
-      </div>
-      
-      <button className="submit-button" onClick={handleSubmit}>SUBMIT</button>
-    </div> */}
       </div>
     </div>
   );
 }
 
 export default KeeperOpenPond;
-

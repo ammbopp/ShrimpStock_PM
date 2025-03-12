@@ -54,8 +54,18 @@ const DetailOrder = () => {
   }, [product]);
 
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCartCount(savedCart.length);
+    const updateCartCount = () => {
+      const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
+      setCartCount(savedCart.length);
+    };
+
+    updateCartCount();
+    
+    window.addEventListener('storage', updateCartCount);
+    
+    return () => {
+      window.removeEventListener('storage', updateCartCount);
+    };
   }, []);
 
   const handleAddToCart = () => {
@@ -102,6 +112,20 @@ const DetailOrder = () => {
         employee_id,
         cart,
       },
+    });
+  };
+
+  const navigateToCart = () => {
+    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    navigate('/keeper/cart', { 
+      state: { 
+        employee_fname, 
+        employee_lname, 
+        employee_image, 
+        employee_id, 
+        employee_position, 
+        cart: savedCart 
+      } 
     });
   };
 
@@ -162,12 +186,7 @@ const DetailOrder = () => {
       </div>
 
       {/* Cart icon */}
-      <div className="cart-icon" onClick={() => {
-        const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
-        navigate('/keeper/cart', { 
-          state: { employee_fname, employee_lname, employee_image, employee_id, employee_position, cart: savedCart } 
-        });
-      }}>
+      <div className="cart-icon" onClick={navigateToCart}>
         <img src={cartIcon} alt="Cart Icon" />
         <span className="cart-count">{cartCount}</span>
       </div>
