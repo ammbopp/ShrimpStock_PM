@@ -85,7 +85,7 @@ const RequestDetail = () => {
   };
 
   return (
-    <div>
+    <div className="page-container">
       <div className="navbar" style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '60%', zIndex: 1000, backgroundColor: '#FFFFFF', boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.1)' }}>
         <div className="logo">
           <img src={shrimpLogo} alt="Shrimp Logo" />
@@ -111,7 +111,7 @@ const RequestDetail = () => {
       </div>
 
       {/* Main content */}
-      <div className="content" style={{ marginTop: '200px' }}>
+      <div className="content">
 
         {/* Displaying request details */}
         <div className="request-detail-card">
@@ -134,14 +134,15 @@ const RequestDetail = () => {
                 </div>
               </div>
             ))}
+            
           </div>
-        </div>
-        {/* Confirm Receipt Button */}
-            {request_status && request_status.toLowerCase() === 'accept' && (
+          {/* Confirm Receipt Button */}
+          {request_status && request_status.toLowerCase() === 'accept' && (
             <button className="confirm-receipt-button" onClick={handleConfirmReceipt}>
                 Confirm Receipt
             </button>
             )}
+        </div>
 
       </div>
     </div>

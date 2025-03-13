@@ -1,0 +1,92 @@
+/* ปรับโครงสร้าง layout */
+.product-lots-container {
+    display: flex;
+    gap: 30px;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: auto;
+    margin-bottom: auto;
+    
+  }
+  
+  /* การ์ดสำหรับรายละเอียดสินค้า */
+  .product-detail-card {
+    flex: 1;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .product-detail-card img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-bottom: 15px;
+  }
+  
+  /* ปรับสไตล์ปุ่ม */
+  .view-button {
+    background: #d35400;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 15px;
+    transition: background 0.3s ease-in-out;
+  }
+  
+  .view-button:hover {
+    background: #e67e22;
+  }
+  
+  /* การ์ดล็อต */
+  .lots-container {
+    flex: 1;
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .lots-container h3 {
+    text-align: center;
+    color: #d35400;
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+  
+  /* รายการล็อต */
+  .lots-container ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  /* กล่องแต่ละล็อต */
+  .lot-card {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .lot-card:hover {
+    transform: translateY(-3px);
+  }
+  
+  /* จัดระยะห่างของข้อมูลภายในล็อต */
+  .lot-card p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .lot-card strong {
+    color: #d35400;
+  }
+  

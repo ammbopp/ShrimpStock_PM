@@ -57,7 +57,7 @@ const RequestMenu = () => {
   };
   
   return (
-    <div>
+    <div className="page-container">
       <div className="navbar" style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '60%', zIndex: 1000, backgroundColor: '#FFFFFF', boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.1)' }}>
         <div className="logo">
           <img src={shrimpLogo} alt="Shrimp Logo" />
@@ -83,7 +83,7 @@ const RequestMenu = () => {
       </div>
 
       {/* Main content */}
-      <div className="content" style={{ marginTop: '150px' }}>
+      <div className="content">
         <h1>Hey, <span id="username">{employee_fname || 'Guest'} {employee_lname || ''}</span>
         <br></br> Let's choose your Chemical! 👀</h1>
         <hr />

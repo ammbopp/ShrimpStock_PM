@@ -195,7 +195,7 @@ const KeeperCart = () => {
   };
 
   return (
-    <div>
+    <div className="page-container" style={{marginTop:'140px'}}>
       <div className="navbar">
         <div className="logo">
           <img src={shrimpLogo} alt="Shrimp Logo" />

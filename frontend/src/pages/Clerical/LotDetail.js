@@ -89,7 +89,7 @@ const LotDetail = () => {
             <p><strong>Date:</strong> {new Date(lotDetail.lot_date).toLocaleDateString()}</p>
             <p><strong>Expiration Date:</strong> {new Date(lotDetail.lot_exp).toLocaleDateString()}</p>
             <p><strong>Quantity:</strong> {lotDetail.lot_quantity}</p>
-            <button onClick={() => navigate(-1)} className="back-button">Go Back</button>
+            <button onClick={() => navigate(-1)} className="back-button">Back</button>
           </div>
         ) : (
           <p>Loading...</p>

@@ -7,7 +7,7 @@ import starIcon from '../../assets/star-dark.png';
 
 function KeeperHome(){
   const [menuOpen, setMenuOpen] = useState(false);
-  const [requests, setRequests] = useState([]);
+  const [products, setProducts] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
   const { employee_fname, employee_lname, employee_image, employee_id, employee_position } = location.state || {};
@@ -31,39 +31,38 @@ function KeeperHome(){
     console.log('Employee ID:', employee_id);
   };
 
-//   const navigateToDetail = (request) => {
-//     // นำทางไปหน้า RequestDetail และส่งข้อมูล request_id
-//     navigate('/clerical/request-detail', {
-//       state: {
-//         request_id: request.request_id,
-//         request_date: request.request_date,
-//         request_status: request.request_status,
-//         employee_fname,
-//         employee_lname,
-//         employee_image,
-//         employee_id,
-//       },  
-//     });
-//     console.log(request);
-//   };
+  const navigateToOrder = (product) => {
+    navigate(`/keeper/detail-order/${product.product_id}`, {
+      state: {
+        product_id: product.product_id,
+        product_name: product.product_name,
+        product_image: product.product_image,
+        employee_fname,
+        employee_lname,
+        employee_image,
+        employee_id,
+      },  
+    });
+    console.log(product);
+  };
 
-//   useEffect(() => {
-//     const fetchWaitingRequests = async () => {
-//       try {
-//         const response = await fetch(`http://localhost:3001/api/home/clerical/requests/waiting`);
-//         if (response.ok) {
-//           const data = await response.json();
-//           setRequests(data);
-//         } else {
-//           console.error('Error fetching waiting requests');
-//         }
-//       } catch (error) {
-//         console.error('Error fetching waiting requests:', error);
-//       }
-//     };
+  useEffect(() => {
+    const fetchProductOutOfStock = async () => {
+      try {
+        const response = await fetch(`http://localhost:3001/api/products/all`);
+        if (response.ok) {
+          const data = await response.json();
+          setProducts(data);
+        } else {
+          console.error('Error fetching product');
+        }
+      } catch (error) {
+        console.error('Error fetching product:', error);
+      }
+    };
   
-//     fetchWaitingRequests();
-//   }, []); // เพิ่ม [] เพื่อให้ useEffect ทำงานแค่ครั้งเดียว
+    fetchProductOutOfStock();
+  }, []); // เพิ่ม [] เพื่อให้ useEffect ทำงานแค่ครั้งเดียว
   
   
   return (
@@ -111,16 +110,19 @@ function KeeperHome(){
             <span className="view-all" style={{ cursor: 'pointer', color: '#BD5D3A' }}>view all</span>
           </h2>
           <div className="request-list">
-            {requests.length > 0 ? (
-              requests.map((request) => (
-                <div key={request.request_id} className="request-card">
-                  <div className="request-info">
-                    <p><strong>📍 Request ID:</strong> {request.request_id}</p>
-                    <p><strong>Date:</strong> {new Date(request.request_date).toLocaleDateString()}</p>
-                  </div>
+            {products.length > 0 ? (
+              products.map((product) => (
+                <div key={product.product_id} className="request-card">
+                  <div style={{ display: 'flex', gap: '10px'}}>
+                  <img src={`/product/${product.product_image}`} alt={product.product_name} style={{ width: '80px', height: '80px', objectFit: 'cover' }} />
+                    <div className="request-info" style={{ gap: '10px', marginTop: 'auto', marginBottom:'auto'}}>
+                      <h3><strong>📍 Product:</strong> {product.product_name}</h3>
+                      <h3><strong>Type:</strong> {product.product_type}</h3>
+                    </div>
+                    </div>
                   <div className="request-status">
-                    <p className={`status ${request.request_status.toLowerCase()}`}>{request.request_status}</p>
-                    <button className="view-details-button">View Details</button>
+
+                    <button className="view-details-button" onClick={() => navigateToOrder(product)}>Add to cart</button>
                   </div>
                 </div>
               ))

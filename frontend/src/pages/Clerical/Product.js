@@ -8,7 +8,7 @@ import './Product.css';
 const Product = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { employee_fname, employee_lname, employee_image, employee_id, employee_position, cart } = location.state || {};
+  const { employee_fname, employee_lname, employee_image, employee_id, employee_position } = location.state || {};
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [products, setProducts] = useState([]);

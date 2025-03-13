@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import shrimpLogo from '../../assets/shrimp.png';
 import iconUser from '../../assets/bear.png';
-
+import './ProductDetail.css';
 
 const ProductDetail = () => {
   const location = useLocation();
@@ -72,13 +72,15 @@ useEffect(() => {
 
         <div className={`side-menu ${menuOpen ? 'open' : ''}`}>
                 <ul>
-                  <li onClick={() => navigateToPage('/clerical/home')}>Home</li>
-                  <li onClick={() => navigateToPage('/clerical/profile')}>Profile</li>
-                  <li onClick={() => navigateToPage('/clerical/products')}>Products</li>
-                  <li onClick={() => navigateToPage('/clerical/requests')}>Requests</li>
-                  <li onClick={() => navigateToPage('/clerical/orders')}>Orders</li>
-                  <li onClick={() => navigateToPage('/clerical/audit')}>Audits</li>
-                  <li onClick={() => navigateToPage('/login')}>Logout</li>
+                    <li onClick={() => navigateToPage('/keeper/home')}>Home</li>
+                    <li onClick={() => navigateToPage('/keeper/profile')}>Profile</li>
+                    <li onClick={() => navigateToPage('/keeper/products')}>Products</li>
+                    <li onClick={() => navigateToPage('/keeper/requests')}>Requests</li>
+                    <li onClick={() => navigateToPage('/keeper/orders')}>Orders</li>
+                    <li onClick={() => navigateToPage('/keeper/audit')}>Audits</li>
+                    <li onClick={() => navigateToPage('/keeper/pond')}>Ponds</li>
+                    <li onClick={() => navigateToPage('/keeper/employee')}>Employees</li>
+                    <li onClick={() => navigateToPage('/login')}>Logout</li>
                 </ul>
             </div>
             <div className="navbar" style={{position: 'fixed', top: 0, left: 0, right: 0, width: '60%'}}>

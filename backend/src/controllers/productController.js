@@ -94,7 +94,7 @@ router.get('/product/:product_id/lots', (req, res) => {
       product_id, 
       lot_date, 
       lot_exp, 
-      lot_quantity 
+      lot_quantity
     FROM product_lots 
     WHERE product_id = ?;
   `;

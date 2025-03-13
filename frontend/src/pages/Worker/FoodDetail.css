@@ -7,7 +7,7 @@
     border-radius: 20px;
     width: 80%; /* ลดความกว้างของการ์ดให้เล็กลง */
     max-width: 400px; /* ลดความกว้างสูงสุดของการ์ด */
-    margin: 40px auto;
+    
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
   }

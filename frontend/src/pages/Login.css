@@ -83,7 +83,8 @@ body {
   border: none;
   border-radius: 15px;
   cursor: pointer;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 .login-button:hover {
@@ -93,9 +94,9 @@ body {
 .forgot-password, .sign-up {
   font-size: 14px;
   color: #BD5D3A;
-  text-align: center;
+  
   text-decoration: none;
-  display: block; /* Add this to make it centered */
+  display: flex;
 }
 
 .forgot-password:hover, .sign-up:hover {

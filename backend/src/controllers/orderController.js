@@ -3,6 +3,32 @@ const router = express.Router();
 const connection = require('../db/database');
 const { v4: uuidv4 } = require('uuid'); // ใช้ UUID เพื่อสร้าง order_id และ order_list_id
 
+router.get('/products/all', (req, res) => {
+  const query = `
+    SELECT 
+      product_id, 
+      product_name, 
+      product_type,
+      product_image
+    FROM products
+    WHERE product_quantity <= threshold;
+  `;
+
+  connection.query(query, (error, results) => {
+    if (error) {
+      console.error('Database query error:', error);
+      res.status(500).json({ error: 'Database query error' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ message: 'No products found' });
+      return;
+    }
+    res.status(200).json(results);
+  });
+});
+
 // ดึงรายการสินค้าอาหาร (Food) สำหรับการสั่งซื้อ
 router.get('/products/food', (req, res) => {
   const query = `
