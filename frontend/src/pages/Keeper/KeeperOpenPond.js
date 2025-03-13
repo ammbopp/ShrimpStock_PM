@@ -13,6 +13,7 @@ function KeeperOpenPond() {
   const { employee_fname, employee_lname, employee_image, employee_id, employee_position } = location.state || {};
  
   const employeeImagePath = employee_image ? `/avatar/${employee_image}` : iconUser;
+  
 
   const [employees, setEmployees] = useState([]);
   // "Worker", "Academic", or "All"
@@ -50,30 +51,38 @@ function KeeperOpenPond() {
         : [...prevSelected, employeeId]
     );
   };
+  
 
   // Submit the selected employees to open the pond.
   const handleSubmit = async () => {
     try {
-        const openRes = await fetch(`http://localhost:3001/api/pond/status/open/${pond_id}`, {  
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                pond_id: pond_id,
-                staff: selectedEmployees 
-            }),
-        });
-
-        const response = await openRes.json();
-        if (!openRes.ok) throw new Error(response.error || 'Failed to open pond');
-
-        alert('Pond opened and staff assigned successfully!');
-        setSelectedEmployees([]);
-        // navigate('/keeperPondDetail/:pond_id'); use it when pond detail page is crerated!
+      const openRes = await fetch(`http://localhost:3001/api/pond/status/open/${pond_id}`, {  
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          pond_id: pond_id,
+          staff: selectedEmployees 
+        }),
+      });
+  
+      const response = await openRes.json();
+      if (!openRes.ok) throw new Error(response.error || 'Failed to open pond');
+  
+      // Navigate back to KeeperPondDetail page with current state
+      navigate(`/keeper/pond/${pond_id}`, {
+        state: {
+          employee_id,
+          employee_fname,
+          employee_lname,
+          employee_image,
+          employee_position,
+        },
+      });
     } catch (err) {
-        console.error(err);
-        alert('An error occurred. Check the console for details.');
+      console.error(err);
+      alert('An error occurred. Check the console for details.');
     }
-};
+  };
 
 
   // Navigation helper to pass along employee state.
@@ -87,6 +96,7 @@ function KeeperOpenPond() {
         employee_position,
       },
     });
+    setMenuOpen(false);
   };
 
   return (

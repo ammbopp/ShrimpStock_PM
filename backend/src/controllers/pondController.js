@@ -172,5 +172,17 @@ router.get('/ponds', (req, res) => {
     }
 });
 
+// เพิ่มใน pondController.js
+router.get('/pond_staffs/pond/:pond_used_id', (req, res) => {
+  const { pond_used_id } = req.params;
+  const sql = 'SELECT employee_id FROM pond_staffs WHERE pond_used_id = ?';
+  connection.query(sql, [pond_used_id], (error, results) => {
+    if (error) {
+      console.error('Error retrieving pond staff:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+    res.json(results);
+  });
+});
 
 module.exports = router;

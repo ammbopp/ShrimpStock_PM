@@ -11,6 +11,11 @@ const KeeperPond = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { employee_fname, employee_lname, employee_image, employee_id, employee_position } = location.state || {};
+  
+  // กำหนด path ของรูปภาพพนักงาน
+  const employeeImagePath = employee_image ? `/avatar/${employee_image}` : iconUser;
   
   // Fetch all ponds on component mount
   useEffect(() => {
@@ -81,21 +86,34 @@ const KeeperPond = () => {
 
   const handleMoreInfo = (pondId) => {
     console.log(`Navigating to more info for pond ${pondId}`);
-    // Navigate to pond details page
-    navigate(`/keeper/pond/${pondId}`);
+    // Navigate to pond details page with employee data
+    navigate(`/keeper/pond/${pondId}`, {
+      state: {
+        employee_id,
+        employee_fname,
+        employee_lname,
+        employee_image,
+        employee_position,
+      },
+    });
   };
 
   const navigateToPage = (path) => {
-    navigate(path);
+    navigate(path, {
+      state: {
+        employee_id,
+        employee_fname,
+        employee_lname,
+        employee_image,
+        employee_position,
+      },
+    });
     setMenuOpen(false);
   };
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
-
-  // For employee image path (using iconUser as default)
-  const employeeImagePath = iconUser;
 
   return (
     <div className="min-h-screen bg-stone-100 p-4 flex flex-col items-center">
@@ -124,7 +142,7 @@ const KeeperPond = () => {
           <span>Shrimp Farm</span>
         </div>
         <div className="user-profile">
-          <img src={employeeImagePath} alt="User Profile" className="user-avatar" />
+          <img src={employeeImagePath} alt="User Profile" style={{ width: '40px', height: '40px', borderRadius: '50%' }} />
         </div>
       </div>
 
@@ -190,4 +208,4 @@ const KeeperPond = () => {
   );
 };
 
-export default KeeperPond
+export default KeeperPond;

@@ -20,6 +20,8 @@ body {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: center; /* Add this to center the card contents horizontally */
+  margin: 0 auto; /* Add this to center the card itself */
 }
 
 .login-header {
@@ -93,8 +95,22 @@ body {
   color: #BD5D3A;
   text-align: center;
   text-decoration: none;
+  display: block; /* Add this to make it centered */
 }
 
 .forgot-password:hover, .sign-up:hover {
   color: #a4542f;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .login-card {
+    flex-direction: column;
+    padding: 24px;
+  }
+  
+  .login-header {
+    margin-right: 0;
+    margin-bottom: 24px;
+  }
 }

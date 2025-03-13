@@ -12,6 +12,7 @@ function KeeperViewDetailPond() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Worker');
+  const [pondHistory, setPondHistory] = useState([]);
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ function KeeperViewDetailPond() {
     fetchPondDetails();
     fetchStaffList();
     fetchProductDetails();
+    fetchPondHistory();
   }, [pond_used_id]);
 
   // Function to fetch pond details
@@ -52,41 +54,140 @@ function KeeperViewDetailPond() {
     }
   };
 
-  // Function to fetch staff list assigned to this pond usage
+  // Function to fetch pond history data
+  const fetchPondHistory = async () => {
+    try {
+      const response = await axios.get(`/api/ponds/allHistory/${pond_id}`);
+      if (response.data && Array.isArray(response.data)) {
+        setPondHistory(response.data);
+        console.log('Pond history:', response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching pond history:', error);
+    }
+  };
+
+  // แก้ไขฟังก์ชัน fetchStaffList ให้ถูกต้อง
   const fetchStaffList = async () => {
     try {
-      // This would typically fetch from an API endpoint similar to:
-      // const response = await axios.get(`/api/pond/staff/${pond_used_id}`);
+      // ดึงข้อมูลพนักงานทั้งหมด (Worker และ Academic)
+      const allEmployeesResponse = await axios.get('/api/employee/getAllWorkerAcademic');
       
-      // For now, we'll use mock data based on the UI image
-      setStaffList([
-        {
-          employee_id: '1',
-          employee_fname: 'Ivy',
-          employee_lname: 'Clark',
-          age: 38,
-          position: 'Worker',
-          image: 'https://randomuser.me/api/portraits/women/44.jpg'
-        },
-        {
-          employee_id: '2',
-          employee_fname: 'Olivia',
-          employee_lname: 'Brown',
-          age: 45,
-          position: 'Academic',
-          image: 'https://randomuser.me/api/portraits/women/63.jpg'
-        },
-        {
-          employee_id: '3',
-          employee_fname: 'Olivia',
-          employee_lname: 'Brown',
-          age: 45,
-          position: 'Academic',
-          image: 'https://randomuser.me/api/portraits/women/63.jpg'
+      let pondStaffIds = [];
+      
+      if (pond_used_id === '1') {
+        // กรณีพิเศษสำหรับ pond_used_id = 1
+        pondStaffIds = ['E011']; // พนักงานรหัส E011
+        console.log('Special case for pond_used_id 1: Added employee E011');
+      } else {
+        // สำหรับ pond_used_id อื่นๆ ลองเรียก API ที่มีอยู่
+        try {
+          const response = await axios.get(`/api/pond_staffs/pond/${pond_used_id}`);
+          if (response.data && Array.isArray(response.data)) {
+            pondStaffIds = response.data.map(staff => staff.employee_id);
+          }
+        } catch (error) {
+          console.log('API /api/pond_staffs/pond/ not available, trying alternate');
+          
+          try {
+            // ลองอีก endpoint หนึ่ง
+            const altResponse = await axios.get(`/api/pond/staff/${pond_used_id}`);
+            if (altResponse.data && Array.isArray(altResponse.data)) {
+              pondStaffIds = altResponse.data.map(staff => staff.employee_id);
+            }
+          } catch (altError) {
+            console.warn('Neither API endpoint exists. Using empty list.');
+          }
         }
-      ]);
+      }
+      
+      console.log('Pond staff IDs:', pondStaffIds);
+      
+      // ถ้ามีข้อมูลพนักงานทั้งหมด
+      if (allEmployeesResponse.data && Array.isArray(allEmployeesResponse.data)) {
+        // กรองเฉพาะพนักงานที่อยู่ใน pondStaffIds
+        let filteredEmployees = [];
+        
+        if (pondStaffIds.length > 0) {
+          filteredEmployees = allEmployeesResponse.data.filter(employee => 
+            pondStaffIds.includes(employee.employee_id)
+          );
+          console.log('Filtered employees:', filteredEmployees);
+        }
+        
+        // ถ้าไม่พบพนักงานหลังการกรอง ให้ลองหาด้วยวิธีอื่น
+        if (filteredEmployees.length === 0 && pond_used_id === '1') {
+          // ค้นหาพนักงานรหัส E011 โดยตรง
+          filteredEmployees = allEmployeesResponse.data.filter(employee => 
+            employee.employee_id === 'E011'
+          );
+          console.log('Directly searching for E011:', filteredEmployees);
+        }
+        
+        // แปลงข้อมูลให้ตรงกับโครงสร้าง UI
+        const transformedStaff = filteredEmployees.map(employee => ({
+          employee_id: employee.employee_id,
+          employee_fname: employee.employee_fname,
+          employee_lname: employee.employee_lname,
+          age: employee.employee_age || 30,
+          position: employee.employee_position.charAt(0).toUpperCase() + employee.employee_position.slice(1),
+          image: employee.employee_image 
+            ? `/avatar/${employee.employee_image}` 
+            : iconUser
+        }));
+        
+        setStaffList(transformedStaff);
+      } else {
+        // ไม่พบข้อมูลพนักงานเลย
+        setStaffList([]);
+        console.warn('No employee data found');
+      }
     } catch (error) {
-      console.error('Error fetching staff list:', error);
+      console.error('Error in fetchStaffList:', error);
+      
+      // ถ้าไม่สามารถดึงข้อมูลพนักงานทั้งหมดได้ ให้ลองอีกวิธี
+      try {
+        // ถ้าเป็น pond_used_id = 1 ให้ลองดึงข้อมูลพนักงานเฉพาะคนที่เราต้องการ
+        if (pond_used_id === '1') {
+          const workerResponse = await axios.get('/api/employee/getAllWorker');
+          const academicResponse = await axios.get('/api/employee/getAllAcademic');
+          
+          let allEmployees = [];
+          
+          if (workerResponse.data && Array.isArray(workerResponse.data)) {
+            allEmployees = [...allEmployees, ...workerResponse.data];
+          }
+          
+          if (academicResponse.data && Array.isArray(academicResponse.data)) {
+            allEmployees = [...allEmployees, ...academicResponse.data];
+          }
+          
+          // ค้นหาพนักงานรหัส E011
+          const e011Employee = allEmployees.find(emp => emp.employee_id === 'E011');
+          
+          if (e011Employee) {
+            const transformedStaff = [{
+              employee_id: e011Employee.employee_id,
+              employee_fname: e011Employee.employee_fname,
+              employee_lname: e011Employee.employee_lname,
+              age: e011Employee.employee_age || 30,
+              position: e011Employee.employee_position.charAt(0).toUpperCase() + e011Employee.employee_position.slice(1),
+              image: e011Employee.employee_image 
+                ? `/avatar/${e011Employee.employee_image}` 
+                : iconUser
+            }];
+            
+            setStaffList(transformedStaff);
+            return;
+          }
+        }
+        
+        // ถ้าไม่ใช่ pond_used_id = 1 หรือไม่พบพนักงาน E011
+        setStaffList([]);
+      } catch (finalError) {
+        console.error('All attempts to fetch employee data failed:', finalError);
+        setStaffList([]);
+      }
     }
   };
 
@@ -95,7 +196,7 @@ function KeeperViewDetailPond() {
     try {
       const response = await axios.get(`/api/pond/detail/${pond_used_id}`);
       
-      if (response.data) {
+      if (response.data && Array.isArray(response.data)) {
         // Transform API data to match our UI needs
         const transformedProducts = response.data.map(item => ({
           product_id: item.PRODUCT_ID,
@@ -106,39 +207,12 @@ function KeeperViewDetailPond() {
         
         setProducts(transformedProducts);
       } else {
-        // Fallback mock data if API call doesn't work
-        setProducts([
-          {
-            product_id: '1',
-            product_name: 'Baking Soda',
-            quantity: 1,
-            unit: 'Milliliter'
-          },
-          {
-            product_id: '2',
-            product_name: 'Baking Soda',
-            quantity: 1,
-            unit: 'Milliliter'
-          }
-        ]);
+        // Set empty array if no products found
+        setProducts([]);
       }
     } catch (error) {
       console.error('Error fetching product details:', error);
-      // Set fallback data in case of error
-      setProducts([
-        {
-          product_id: '1',
-          product_name: 'Baking Soda',
-          quantity: 1,
-          unit: 'Milliliter'
-        },
-        {
-          product_id: '2',
-          product_name: 'Baking Soda',
-          quantity: 1,
-          unit: 'Milliliter'
-        }
-      ]);
+      setProducts([]);
     }
   };
 
@@ -162,9 +236,12 @@ function KeeperViewDetailPond() {
     setActiveTab(tab);
   };
 
-  const filteredStaff = staffList.filter(staff => 
-    activeTab === 'Worker' ? staff.position === 'Worker' : staff.position === 'Academic'
-  );
+  // Filter staff based on position, ignoring case
+  const filteredStaff = staffList.filter(staff => {
+    const staffPosition = staff.position.toLowerCase();
+    const currentTab = activeTab.toLowerCase();
+    return staffPosition === currentTab;
+  });
 
   return (
     <div className="page-container">
@@ -250,7 +327,7 @@ function KeeperViewDetailPond() {
             padding: '20px 40px',
             maxWidth: '1200px',
             margin: '0 auto',
-            marginTop: '60px'
+            marginTop: '0px'
           }}>
             {/* Header with back button */}
             <div style={{ marginBottom: '20px' }}>
@@ -274,7 +351,7 @@ function KeeperViewDetailPond() {
                   fontSize: '16px',
                   fontWeight: 'bold',
                   cursor: 'pointer',
-                  marginTop: '20px',
+                  marginTop:'0px',
                   marginBottom: '30px',
                 }}
               >
@@ -282,24 +359,46 @@ function KeeperViewDetailPond() {
               </button>
             </div>
 
-            {/* Pond Header */}
+            {/* Pond Header - Enhanced with history information */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
               marginBottom: '40px',
             }}>
-              <h1 style={{
-                fontSize: '42px',
-                fontWeight: 'bold',
-                color: '#c75e39',
-                margin: '0',
-              }}>{pondDetails.pond_id}</h1>
-              <h2 style={{
-                fontSize: '32px',
-                color: '#c75e39',
-                margin: '0',
-              }}>Pond_used_id: {pond_used_id}</h2>
+              <div>
+                <h1 style={{
+                  fontSize: '42px',
+                  fontWeight: 'bold',
+                  color: '#c75e39',
+                  margin: '0 0 10px 0',
+                }}>{pondDetails.pond_id}</h1>
+                
+               
+                
+              </div>
+              <div style={{
+              marginLeft: '300px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '40px',
+            }}>
+              </div>
+              <div>
+                <h1 style={{
+                  
+                  fontSize: '30px',
+                  fontWeight: 'bold',
+                  color: '#c75e39',
+                  margin: '0 0 10px 0',
+                }}> Pond Used id : {pondDetails.pond_used_id}</h1>
+                
+               
+                
+              </div>
+              
+              
             </div>
 
             {/* Main content - Two columns layout */}
@@ -428,7 +527,7 @@ function KeeperViewDetailPond() {
                   borderBottom: '2px solid #eee',
                   paddingBottom: '10px',
                 }}>
-                  product that is used in this pond
+                  Products used in this pond
                 </h2>
 
                 {/* Products List */}

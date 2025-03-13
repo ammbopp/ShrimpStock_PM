@@ -83,6 +83,7 @@ function KeeperPondDetail() {
         employee_position,
       },
     });
+    setMenuOpen(false);
   };
 
   const handleViewDetail = (pond_used_id) => {
@@ -116,14 +117,16 @@ function KeeperPondDetail() {
 // Handle pond opening and navigate to another page
 // Handle pond opening and navigate to KeeperOpenPond page
 const handleOpenPond = () => {
-  console.log("Open button clicked for pond ID:", pond_id);
-  
-  // แทนที่จะเรียก API โดยตรง ให้นำทางไปยังหน้า KeeperOpenPond เลย
-  // เนื่องจากหน้า KeeperOpenPond จะมีการเลือกพนักงานและทำการเปิดบ่อในขั้นตอนถัดไป
-  console.log("Navigating to:", `/keeper/pond/open/${pond_id}`);
-  navigate(`/keeper/pond/open/${pond_id}`);
+  navigate(`/keeper/pond/open/${pond_id}`, {
+    state: {
+      employee_id,
+      employee_fname,
+      employee_lname,
+      employee_image,
+      employee_position,
+    },
+  });
 };
-
   // View details of a historical pond_used_id
   const viewHistoryDetails = (pond_used_id) => {
     fetchPondUsedDetails(pond_used_id);
@@ -470,7 +473,7 @@ const handleOpenPond = () => {
                         fontWeight: 'bold',
                         color: '#333',
                         margin: '0',
-                      }}>ID : {String(index).padStart(1, '0')}{item.pond_used_id}</h3>
+                      }}>ID : {item.pond_used_id}</h3>
                       
                       <button 
                         onClick={() => viewHistoryDetails(item.pond_used_id)}
