@@ -31,7 +31,7 @@ function checkAndCreateAudit(callback) {
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
             // Check if more than 70 days have passed
-            shouldCreateNewAudit = diffDays > 70;
+            shouldCreateNewAudit = diffDays > 69;
         }
 
         if (shouldCreateNewAudit) {
@@ -65,7 +65,7 @@ function checkAndCreateAudit(callback) {
 // Setup scheduler
 function initSchedulers() {
     // Schedule the task to run at 11:59:59 PM daily
-    const dailyJob = schedule.scheduleJob('59 59 23 * * *', function () {
+    const dailyJob = schedule.scheduleJob('55 59 23 * * *', function () {
         console.log('Running scheduled audit check at', new Date().toISOString());
 
         checkAndCreateAudit((error) => {
