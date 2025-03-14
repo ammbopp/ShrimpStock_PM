@@ -174,12 +174,7 @@ const Audit = () => {
               <p><strong>Payment Status:</strong> {currentAudit.payment_status ? 'Paid' : 'Pending'}</p>
               <p><strong>Total Amount of Current Audit:</strong> {totalAuditAmount} THB</p>
               <div className='toolbar2'>
-              {!currentAudit.payment_status && new Date() >= new Date(currentAudit.payment_due_date) && (
-                <button className="view-button" onClick={() => confirmPayment(currentAudit.audit_id)}>
-                  Confirm Payment
-                </button>
-              )}
-                {latestAudit && (
+                {latestAudit && currentAudit && new Date() < new Date(currentAudit.payment_due_date) && (
                   <button className="view-button" onClick={() => navigate(`/clerical/add-orders/${latestAudit.audit_id}`)}>
                     Add Orders to Audit
                   </button>
