@@ -91,8 +91,8 @@ const FoodDetail = () => {
           <li onClick={() => navigateToPage('/worker/home')}>Home</li>
           <li onClick={() => navigateToPage('/worker/profile')}>Profile</li>
           <li onClick={() => navigateToPage('/worker/requests/:employee_id')}>Request History</li>
-          <li onClick={() => navigateToPage('/worker/request-menu')}>Request Menu</li>
-          <li onClick={() => navigate('/login')}>Logout</li>
+          <li onClick={() => navigateToPage('/worker/request-menu')}>Product Request</li>
+          <li onClick={() => navigateToPage('/login')}>Logout</li>
         </ul>
       </div>
 

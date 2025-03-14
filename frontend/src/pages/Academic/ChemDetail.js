@@ -87,11 +87,11 @@ const ChemDetail = () => {
       {/* Side menu */}
       <div className={`side-menu ${menuOpen ? 'open' : ''}`}>
         <ul>
-          <li onClick={() => navigateToPage('/academic/home')}>Home</li>
-          <li onClick={() => navigateToPage('/academic/profile')}>Profile</li>
-          <li onClick={() => navigateToPage('/academic/requests/:employee_id')}>Request History</li>
-          <li onClick={() => navigateToPage('/academic/request-menu')}>Request Menu</li>
-          <li onClick={() => navigate('/login')}>Logout</li>
+        <li onClick={() => navigateToPage('/academic/home')}>Home</li>
+        <li onClick={() => navigateToPage('/academic/profile')}>Profile</li>
+        <li onClick={() => navigateToPage('/academic/requests/:employee_id')}>Request History</li>
+        <li onClick={() => navigateToPage('/academic/request-menu')}>Product Request</li>
+        <li onClick={() => navigateToPage('/login')}>Logout</li>
         </ul>
       </div>
 
