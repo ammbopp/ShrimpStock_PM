@@ -208,14 +208,20 @@ router.post('/audits/latest/add-orders', (req, res) => {
       `;
     const updateOrderStatusQuery = `UPDATE ORDERS SET order_status = 'done' WHERE order_id IN (?)`;
 
-    const auditListValues = orders.map(order => [
-      `AUDIT_LIST-${Date.now()}-${order.order_id}`,
-      latestAuditId,
-      order.order_id,
-      order.order_amount,
-    ]);
+    const auditListValues = [];
+    const orderIds = [];
 
-    const orderIds = orders.map(order => order.order_id);
+    orders.forEach(order => {
+      auditListValues.push([
+        `AUDIT_LIST-${Date.now()}-${order.order_id}`,
+        latestAuditId,
+        order.order_id,
+        order.order_amount,
+      ]);
+      orderIds.push(order.order_id);
+    });
+
+    console.log("Pushed orders: " + auditListValues);
 
     connection.query(insertAuditListQuery, [auditListValues], (insertError) => {
       if (insertError) {
@@ -234,6 +240,7 @@ router.post('/audits/latest/add-orders', (req, res) => {
     });
   });
 });
+
 
 
 

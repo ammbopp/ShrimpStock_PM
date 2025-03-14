@@ -11,8 +11,8 @@
     align-items: center;
     justify-content: center;
     max-width: 800px;
-    height: 90vh;
-    padding: 20px;
+    max-height: 90vh;
+    padding: 50px 20px;
     margin: 60px auto;
     background-color: #EEECE2;
     border-radius: 10px;
@@ -29,11 +29,13 @@
     flex-direction: column;
     gap: 15px;
     overflow: scroll;
+    overflow-x: hidden;
 }
 
 .order-card-custom {
     background-color: #FAFAF7;
     padding: 20px;
+    margin: 20px;
     border-radius: 10px;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;

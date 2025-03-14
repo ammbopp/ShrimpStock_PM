@@ -53,6 +53,10 @@ const AddOrderPayment = () => {
                 }),
             });
 
+            if (response.statusCode === 400) {
+                throw new Error('Invalid payment amount, please enter a valid payment amount for every orders');
+            }
+
             if (!response.ok) {
                 throw new Error('Failed to add orders to audit');
             }
