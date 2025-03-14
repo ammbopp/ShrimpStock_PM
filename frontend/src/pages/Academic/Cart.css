@@ -1,6 +1,5 @@
 /* Cart.css */
 .content-cart {
-<<<<<<< HEAD
     background-color: #FAFAF7;
     padding: 20px;
     border-radius: 20px;
@@ -11,17 +10,6 @@
     text-align: center;
     height: fit-content;
   }
-=======
-  background-color: #FAFAF7;
-  padding: 20px;
-  border-radius: 20px;
-  width: 100%;
-  max-width: 800px;
-  margin: 60px auto;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
->>>>>>> feature/frontend
 
 .content-cart h1 {
   font-size: 36px;
