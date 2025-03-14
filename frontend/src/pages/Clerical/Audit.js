@@ -4,6 +4,28 @@ import shrimpLogo from '../../assets/shrimp.png';
 import iconUser from '../../assets/bear.png';
 import './Audit.css';
 
+// Notification component
+const AuditNotification = ({ audit, onConfirmPayment }) => {
+  if (!audit || audit.payment_status || new Date() < new Date(audit.payment_due_date)) {
+    return null;
+  }
+
+  return (
+    <div className="notification-container">
+      <div className="notification-text">
+        <span>Notification :</span>
+        <span>It's time to pay Audit ID: {audit.audit_id}</span>
+      </div>
+      <button 
+        className="notification-button"
+        onClick={() => onConfirmPayment(audit.audit_id)}
+      >
+        Payment completed
+      </button>
+    </div>
+  );
+};
+
 const Audit = () => {
   const location = useLocation();
   const { employee_fname, employee_lname, employee_image, employee_id } = location.state || {};
@@ -144,6 +166,7 @@ const Audit = () => {
       </div>
       <div className='content'>
           <h1>Audit Details</h1>
+          <AuditNotification audit={currentAudit} onConfirmPayment={confirmPayment} />
           {currentAudit && (
             <div className="audit-card">
               <h2>Audit ID: {currentAudit.audit_id}</h2>
