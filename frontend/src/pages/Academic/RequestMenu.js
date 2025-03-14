@@ -9,12 +9,35 @@ import starIcon from '../../assets/star-dark.png';
 const RequestMenu = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { employee_fname, employee_lname, employee_image, employee_id, employee_position, cart } = location.state || {};
-
   const [menuOpen, setMenuOpen] = useState(false);
   const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]);
+
+  // Get employee data from location state
+  const {
+    employee_fname,
+    employee_lname,
+    employee_image,
+    employee_id,
+    employee_position,
+  } = location.state || {};
 
   const employeeImagePath = employee_image ? `/avatar/${employee_image}` : iconUser;
+
+  // Initialize cart from localStorage or location state
+  useEffect(() => {
+    // First try to get cart from localStorage
+    const savedCart = JSON.parse(localStorage.getItem("academicCart")) || [];
+    
+    // If location.state.cart exists and has items, use that instead
+    if (location.state?.cart && location.state.cart.length > 0) {
+      setCart(location.state.cart);
+      // Sync with localStorage
+      localStorage.setItem("academicCart", JSON.stringify(location.state.cart));
+    } else {
+      setCart(savedCart);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     // ดึงข้อมูลสินค้าจาก Backend เมื่อ Component ถูก mount
@@ -29,21 +52,24 @@ const RequestMenu = () => {
       .catch(error => console.error('Error fetching products:', error));
   }, []);
   
+  // Listen for changes in the cart from other components
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const updatedCart = JSON.parse(localStorage.getItem("academicCart")) || [];
+      setCart(updatedCart);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+  
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
 
   const navigateToPage = (path) => {
-    console.log('Navigating to:', path);
-    console.log('State:', {
-      employee_fname,
-      employee_lname,
-      employee_image,
-      employee_id,
-      employee_position,
-      cart,
-    });
-  
     navigate(path, {
       state: {
         employee_fname,
@@ -51,7 +77,7 @@ const RequestMenu = () => {
         employee_image,
         employee_id,
         employee_position,
-        cart,
+        cart, // Pass the current cart
       },
     });
   };
@@ -108,13 +134,12 @@ const RequestMenu = () => {
                         product_id: product.product_id,
                         product_name: product.product_name,
                         product_image: product.product_image,
-
                         employee_fname,
                         employee_lname,
                         employee_image,
                         employee_id,
                         employee_position,
-                        cart,
+                        cart, // Pass the current cart
                     },
                   
                     })}style={{ marginTop: '5px' }}>View Details</button>
