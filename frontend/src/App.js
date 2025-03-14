@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
-import WorkerHome from './pages/Worker/WorkerHome'; 
+import WorkerHome from './pages/Worker/WorkerHome';
 import RequestFoodMenu from './pages/Worker/RequestMenu';
 import FoodDetail from './pages/Worker/FoodDetail';
 import ProfileWorker from './pages/Worker/Profile'
@@ -49,7 +49,7 @@ import KeeperOpenPond from './pages/Keeper/KeeperOpenPond';
 import EmployeeDetail from './pages/Keeper/EmployeeDatail';
 import CreateAcc from './pages/Keeper/CreateAcc';
 import KeeperProductDetail from './pages/Keeper/ProductDetail';
-
+import KeeperOrderDetails from './pages/Keeper/KeeperOrderDetails';
 
 function App() {
   return (
@@ -61,8 +61,8 @@ function App() {
         <Route path="/worker/home" element={<WorkerHome />} />
         <Route path="/worker/request-menu" element={<RequestFoodMenu />} />
         <Route path="/worker/food-detail" element={<FoodDetail />} />
-        <Route path="/Worker/cart" element={<RequestFoodCart/>}/>
-        <Route path="/worker/requests/:employee_id" element={<RequestHistory/>}/>
+        <Route path="/Worker/cart" element={<RequestFoodCart />} />
+        <Route path="/worker/requests/:employee_id" element={<RequestHistory />} />
         <Route path="/worker/request-detail/" element={<RequestFoodDetail />} />
 
         <Route path="/academic/home" element={<AcademicHome />} />
@@ -94,6 +94,7 @@ function App() {
         <Route path="/keeper/requests" element={<KeeperRequest />} />
         <Route path="/keeper/orders" element={<KeeperOrder />} />
         <Route path="/keeper/audit" element={<KeeperAudit />} />
+        <Route path="/keeper/order-detail/:order_id" element={<KeeperOrderDetails />} />
         <Route path="/keeper/pond" element={<KeeperPond />} />
         <Route path="/keeper/employee" element={<Employee />} />
         <Route path="/keeper/request-detail" element={<RequestDetail />} />
@@ -105,7 +106,7 @@ function App() {
         <Route path="/keeper/employee/details/:id" element={<EmployeeDetail />} />
         <Route path="/keeper/employee/create" element={<CreateAcc />} />
         <Route path="/keeper/product-detail/:product_id" element={<KeeperProductDetail />} />
-        
+
       </Routes>
     </Router>
   );
