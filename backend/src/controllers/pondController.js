@@ -76,6 +76,7 @@ router.get('/ponds', (req, res) => {
       SELECT 
         rl.PRODUCT_ID, 
         p.product_name, 
+        p.product_image, 
         rl.UNIT_ID, 
         u.unit_name, 
         rl.REQUEST_QUANTITY 

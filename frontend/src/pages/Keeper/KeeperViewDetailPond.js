@@ -201,6 +201,7 @@ function KeeperViewDetailPond() {
         const transformedProducts = response.data.map(item => ({
           product_id: item.PRODUCT_ID,
           product_name: item.product_name,
+          product_image: item.product_image,
           quantity: item.REQUEST_QUANTITY,
           unit: item.unit_name
         }));
@@ -554,14 +555,26 @@ function KeeperViewDetailPond() {
                           justifyContent: 'center',
                           marginRight: '15px',
                         }}>
-                          {/* Placeholder for product image */}
+                        {product.product_image ? (
+                          <img 
+                            src={`/product/${product.product_image}`} 
+                            alt={product.product_name}
+                            style={{
+                              width: '80px',
+                              height: '80px',
+                              objectFit: 'contain'
+                            }}
+                          />
+                        ) : (
+                          // ใช้ SVG เป็น fallback กรณีไม่มีรูปภาพ
                           <svg width="80" height="80" viewBox="0 0 200 200">
                             <rect x="20" y="30" width="40" height="120" fill="#66B2FF" />
                             <rect x="70" y="60" width="40" height="90" fill="#66B2FF" />
                             <circle cx="70" cy="150" r="40" fill="#FFCC00" />
                             <ellipse cx="110" cy="130" rx="35" ry="30" fill="#CC66FF" />
                           </svg>
-                        </div>
+                        )}
+                      </div>
                         <div>
                           <h3 style={{ 
                             margin: '0 0 10px 0', 

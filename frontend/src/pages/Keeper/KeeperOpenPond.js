@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate ,useParams} from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import './KeeperOpenPond.css'
 import shrimpLogo from '../../assets/shrimp.png';
 import iconUser from '../../assets/bear.png';
@@ -99,6 +99,11 @@ function KeeperOpenPond() {
     setMenuOpen(false);
   };
 
+  // ฟังก์ชันสำหรับจัดการกับ URL ของรูปพนักงาน
+  const getEmployeeImagePath = (imageName) => {
+    return imageName ? `/avatar/${imageName}` : iconUser;
+  };
+
   return (
     <div className="page-container">
       {/* Side Menu */}
@@ -158,7 +163,11 @@ function KeeperOpenPond() {
             <div className="employee-card" key={emp.employee_id}>
               <div>
               <div className="employee-info">
-              <img src={emp.employee_image} alt="Profile" className="employee-image" />
+              <img 
+                src={getEmployeeImagePath(emp.employee_image)} 
+                alt="Profile" 
+                className="employee-image" 
+              />
               <div>
                 <p>Name: {emp.employee_fname} {emp.employee_lname}</p>
                 <p>Age: {emp.employee_age}</p>
