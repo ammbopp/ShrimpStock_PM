@@ -110,8 +110,8 @@ const RequestMenu = () => {
 
       {/* Main content */}
       <div className="content">
-        <h1>Hey, <span id="username">{employee_fname || 'Guest'} {employee_lname || ''}</span>
-        <br></br> Let's choose your Chemical! 👀</h1>
+        <h1 style={{ textAlign: 'center' }}>Hey, <span id="username">{employee_fname || 'Guest'} {employee_lname || ''}</span> Let's choose your Chemical! 👀
+        </h1>
         <hr />
 
         <div className="notice-card">

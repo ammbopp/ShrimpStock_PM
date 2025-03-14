@@ -30,6 +30,12 @@ const ChemDetail = () => {
   }, []);
 
   const handleAddToCart = () => {
+    // Check if unit is selected before adding to cart
+    if (!unit) {
+      alert("Please select a unit before adding to cart.");
+      return;
+    }
+
     const newProduct = {
       product_id,
       product_name,
