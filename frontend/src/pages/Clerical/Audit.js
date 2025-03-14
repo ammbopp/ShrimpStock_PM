@@ -65,6 +65,8 @@ const Audit = () => {
       } else {
         fetchLatestAudit();
       }
+    } else {
+      fetchLatestAudit();
     }
   }, [allAudits, audit_id]);
 
@@ -197,7 +199,7 @@ const Audit = () => {
             <p><strong>Payment Status:</strong> {currentAudit.payment_status ? 'Paid' : 'Pending'}</p>
             <p><strong>Total Amount:</strong> {totalAuditAmount.toFixed(2)} THB</p>
             <div className='toolbar2'>
-              {latestAudit && currentAudit && new Date() < new Date(currentAudit.payment_due_date) && (
+              {new Date() < new Date(currentAudit.payment_due_date) && (
                 <button className="view-button" onClick={() => navigate(`/clerical/add-orders/${latestAudit.audit_id}`)}>
                   Add Orders to Audit
                 </button>
