@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 // import ''; 
+import './CleriaHome.css';
 import shrimpLogo from '../../assets/shrimp.png';
 import iconUser from '../../assets/bear.png';
 import starIcon from '../../assets/star-dark.png';
@@ -46,6 +47,20 @@ function CleriaHome() {
       },
     });
     console.log(request);
+  };
+
+  const navigateToPaymentDetail = (payment) => {
+    // Navigate to the payment detail page and pass the payment data
+    navigate('/clerical/audit', {
+      state: {
+        audit_id: payment.audit_id,
+        employee_fname,
+        employee_lname,
+        employee_image,
+        employee_id,
+      },
+    });
+    console.log(payment);
   };
 
   useEffect(() => {
@@ -149,19 +164,27 @@ function CleriaHome() {
           </div>
         </div>
 
-        <div>
+        <div className="payments">
           <h1>Pending Payments</h1>
-          <div className="request-list">
+          <hr />
+          <div className="payments-list">
             {payments.length > 0 ? (
               payments.map((payment) => (
-                <div key={payment.audit_id} className="request-card">
-                  <div className="request-info">
+                <div key={payment.audit_id} className="payments-card">
+                  <div className="payments-info">
                     <p><strong>📍 Request ID:</strong> {payment.audit_id}</p>
                     <p><strong>Date:</strong> {new Date(payment.payment_due_date).toLocaleDateString()}</p>
-                    {/* if payment_due_date is over today then displays "Overdue", if not then display "Pending" */}
                     <p><strong>Total Amount:</strong> {payment.total_order_amount} THB</p>
                     <p><strong>Payment Due Date:</strong> {new Date(payment.payment_due_date).toLocaleDateString()}</p>
-                    <p style={{}}><strong>Status:</strong> {new Date() > new Date(payment.payment_due_date) ? 'Overdue' : 'Pending'}</p>
+                  </div>
+                  <div className="payment-action">
+                    <p className="payments-status">
+                      <strong>Status</strong>
+                      {new Date() > new Date(payment.payment_due_date) ? 'Overdue' : 'Pending'}
+                    </p>
+                    <button className="view-details-button" onClick={() => navigateToPaymentDetail(payment)}>
+                      View Details
+                    </button>
                   </div>
                 </div>
               ))

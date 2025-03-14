@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import shrimpLogo from '../../assets/shrimp.png';
 import iconUser from '../../assets/bear.png';
@@ -16,7 +16,7 @@ const AuditNotification = ({ audit, onConfirmPayment }) => {
         <span>Notification :</span>
         <span>It's time to pay Audit ID: {audit.audit_id}</span>
       </div>
-      <button 
+      <button
         className="notification-button"
         onClick={() => onConfirmPayment(audit.audit_id)}
       >
@@ -29,6 +29,7 @@ const AuditNotification = ({ audit, onConfirmPayment }) => {
 const Audit = () => {
   const location = useLocation();
   const { employee_fname, employee_lname, employee_image, employee_id } = location.state || {};
+  const { audit_id } = location.state || {};
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const employeeImagePath = employee_image ? `/avatar/${employee_image}` : iconUser;
@@ -38,6 +39,7 @@ const Audit = () => {
   const [currentAudit, setCurrentAudit] = useState(null);
   const [currentAuditLists, setCurrentAuditLists] = useState([]);
   const [totalAuditAmount, setTotalAuditAmount] = useState(0);
+  const [selectedAuditId, setSelectedAuditId] = useState('');
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -47,11 +49,24 @@ const Audit = () => {
     navigate(path, { state: { employee_fname, employee_lname, employee_image, employee_id } });
   };
 
+  // Fetch all audits first
   useEffect(() => {
-    fetchLatestAudit();
     fetchAllAudits();
     fetchTotalAuditAmount();
   }, []);
+
+  // After fetching all audits, set up the current audit
+  useEffect(() => {
+    if (allAudits.length > 0) {
+      // check if state is passed from the previous page
+      if (audit_id) {
+        handleAuditChange(audit_id);
+        setSelectedAuditId(audit_id);
+      } else {
+        fetchLatestAudit();
+      }
+    }
+  }, [allAudits, audit_id]);
 
   const fetchAllAudits = async () => {
     try {
@@ -66,7 +81,7 @@ const Audit = () => {
       console.error('Error fetching all audits:', error);
     }
   };
-  
+
   const fetchLatestAudit = async () => {
     try {
       const response = await fetch('http://localhost:3001/api/audits/latest'); // Match the backend route
@@ -76,33 +91,39 @@ const Audit = () => {
       const data = await response.json();
       console.log('Fetched latest audit:', data); // Debugging log
       setLatestAudit(data);
+      setSelectedAuditId(data.audit_id); // Set the selected audit ID
       fetchAuditDetails(data.audit_id); // Fetch details for the latest audit
     } catch (error) {
       console.error('Error fetching latest audit:', error);
     }
   };
-  
-  const fetchAuditDetails = async (audit_id) => {
+
+  const fetchAuditDetails = useCallback(async (audit_id) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/audits/${audit_id}`); // Match the backend route
+      const response = await fetch(`http://localhost:3001/api/audits/${audit_id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch audit details');
       }
       const data = await response.json();
-      console.log(`Fetched audit details for ${audit_id}:`, data); // Debugging log
+      console.log(`Fetched audit details for ${audit_id}:`, data);
       setCurrentAudit(data.audit);
       setCurrentAuditLists(data.auditLists);
+
+      // Calculate total amount for the current audit
+      const total = data.auditLists.reduce((sum, item) => sum + parseFloat(item.order_amount || 0), 0);
+      setTotalAuditAmount(total);
     } catch (error) {
       console.error('Error fetching audit details:', error);
     }
-  };
-  
+  }, []);
+
+
   const confirmPayment = async (audit_id) => {
     try {
       const response = await fetch(`http://localhost:3001/api/audits/${audit_id}/confirm-payment`, {
         method: 'POST',
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to confirm payment');
       }
@@ -114,29 +135,31 @@ const Audit = () => {
 
   const fetchTotalAuditAmount = async () => {
     try {
-        const response = await fetch('http://localhost:3001/api/audits/latest/total');
-        const data = await response.json();
-        setTotalAuditAmount(data.total || 0);
+      const response = await fetch('http://localhost:3001/api/audits/latest/total');
+      const data = await response.json();
+      setTotalAuditAmount(data.total || 0);
     } catch (error) {
-        console.error('Error fetching total audit amount:', error);
+      console.error('Error fetching total audit amount:', error);
     }
-};
+  };
 
   const handleAuditChange = (audit_id) => {
+    setSelectedAuditId(audit_id);
     fetchAuditDetails(audit_id);
   };
 
+
   const navigateToDetail = (order_id) => {
     navigate(`/clerical/order-detail/${order_id}`, {
-        state: { 
-            order_id,
-            employee_fname,
-            employee_lname,
-            employee_image,
-            employee_id,
-        },
+      state: {
+        order_id,
+        employee_fname,
+        employee_lname,
+        employee_image,
+        employee_id,
+      },
     });
-};
+  };
 
   return (
     <div className="page-container">
@@ -165,51 +188,56 @@ const Audit = () => {
         </div>
       </div>
       <div className='content'>
-          <h1>Audit Details</h1>
-          <AuditNotification audit={currentAudit} onConfirmPayment={confirmPayment} />
-          {currentAudit && (
-            <div className="audit-card">
-              <h2>Audit ID: {currentAudit.audit_id}</h2>
-              <p><strong>Payment Due Date:</strong> {new Date(currentAudit.payment_due_date).toLocaleString()}</p>
-              <p><strong>Payment Status:</strong> {currentAudit.payment_status ? 'Paid' : 'Pending'}</p>
-              <p><strong>Total Amount of Current Audit:</strong> {totalAuditAmount} THB</p>
-              <div className='toolbar2'>
-                {latestAudit && currentAudit && new Date() < new Date(currentAudit.payment_due_date) && (
-                  <button className="view-button" onClick={() => navigate(`/clerical/add-orders/${latestAudit.audit_id}`)}>
-                    Add Orders to Audit
-                  </button>
-                )}
-              </div>
+        <h1>Audit Details</h1>
+        <AuditNotification audit={currentAudit} onConfirmPayment={confirmPayment} />
+        {currentAudit && (
+          <div className="audit-card">
+            <h2>Audit ID: {currentAudit.audit_id}</h2>
+            <p><strong>Payment Due Date:</strong> {new Date(currentAudit.payment_due_date).toLocaleString()}</p>
+            <p><strong>Payment Status:</strong> {currentAudit.payment_status ? 'Paid' : 'Pending'}</p>
+            <p><strong>Total Amount:</strong> {totalAuditAmount.toFixed(2)} THB</p>
+            <div className='toolbar2'>
+              {latestAudit && currentAudit && new Date() < new Date(currentAudit.payment_due_date) && (
+                <button className="view-button" onClick={() => navigate(`/clerical/add-orders/${latestAudit.audit_id}`)}>
+                  Add Orders to Audit
+                </button>
+              )}
             </div>
-          )}
-
-          <div className="audit-selector">
-            <label>Select Audit Round:</label>
-            <select onChange={(e) => handleAuditChange(e.target.value)}>
-              {allAudits.map((audit) => (
-                <option key={audit.audit_id} value={audit.audit_id}>
-                  {audit.audit_id} - {new Date(audit.payment_due_date).toLocaleDateString()}
-                </option>
-              ))}
-            </select>
           </div>
+        )}
 
-          <div className="audit-list">
-            <h3>Audit List</h3>
-            {currentAuditLists.length > 0 ? (
-              currentAuditLists.map((item) => (
-                <div key={item.audit_list_id} className="audit-list-card">
-                  <p><strong>Order ID:</strong> {item.order_id}</p>
-                  <p><strong>Order Amount:</strong> {item.order_amount}</p>
-                  <button onClick={()=> navigateToDetail(item.order_id)}>View Detail</button>
-                </div>
-              ))
-            ) : (
-              <p>No audit list items available</p>
-            )}
-          </div>
+
+        <div className="audit-selector">
+          <label>Select Audit Round:</label>
+          <select
+            value={selectedAuditId}
+            onChange={(e) => handleAuditChange(e.target.value)}
+          >
+            {allAudits.map((audit) => (
+              <option key={audit.audit_id} value={audit.audit_id}>
+                {audit.audit_id} - {new Date(audit.payment_due_date).toLocaleDateString()}
+              </option>
+            ))}
+          </select>
         </div>
-      
+
+
+        <div className="audit-list">
+          <h3>Audit List</h3>
+          {currentAuditLists.length > 0 ? (
+            currentAuditLists.map((item) => (
+              <div key={item.audit_list_id} className="audit-list-card">
+                <p><strong>Order ID:</strong> {item.order_id}</p>
+                <p><strong>Order Amount:</strong> {item.order_amount}</p>
+                <button onClick={() => navigateToDetail(item.order_id)}>View Detail</button>
+              </div>
+            ))
+          ) : (
+            <p>No audit list items available</p>
+          )}
+        </div>
+      </div>
+
     </div>
   );
 };
