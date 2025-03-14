@@ -145,21 +145,38 @@ router.get('/orders/:employee_id', (req, res) => {
 // ดึงรายการสั่งซื้อทั้งหมดสำหรับธุรการ (สามารถกรองด้วย status, order, product_type)
 router.get('/orders', (req, res) => {
   const { status, order, product_type } = req.query;
-
   const statusQuery = status && status !== 'all' ? `AND o.order_status = ?` : '';
   const productTypeQuery = product_type ? `AND p.product_type = ?` : '';
   const orderQuery = order === 'asc' ? 'ORDER BY o.order_date ASC' : 'ORDER BY o.order_date DESC';
 
   const query = `
-    SELECT o.order_id, o.employee_id, o.order_date, o.order_status,
-           ol.order_list_id, ol.product_id, ol.order_quantity, ol.unit_id,
-           p.product_name, p.product_image, u.unit_name, e.employee_fname, e.employee_lname, p.product_type
-    FROM ORDERS o
-    JOIN ORDER_LISTS ol ON o.order_id = ol.order_id
-    JOIN PRODUCTS p ON ol.product_id = p.product_id
-    JOIN UNITS u ON ol.unit_id = u.unit_id
-    JOIN EMPLOYEES e ON o.employee_id = e.employee_id
-    WHERE 1=1 ${statusQuery} ${productTypeQuery} ${orderQuery};
+          SELECT 
+          o.order_id, 
+          o.employee_id, 
+          o.order_date, 
+          o.order_status,
+          e.employee_fname, 
+          e.employee_lname, 
+          e.employee_image,
+          GROUP_CONCAT(
+              JSON_OBJECT(
+                  'product_id', p.product_id,
+                  'product_name', p.product_name,
+                  'order_quantity', ol.order_quantity,
+                  'unit_name', u.unit_name,
+                  'product_image', p.product_image,
+                  'product_type', p.product_type
+              )
+          ) AS products
+      FROM ORDERS o
+      JOIN ORDER_LISTS ol ON o.order_id = ol.order_id
+      JOIN PRODUCTS p ON ol.product_id = p.product_id
+      JOIN UNITS u ON ol.unit_id = u.unit_id
+      JOIN EMPLOYEES e ON o.employee_id = e.employee_id
+      WHERE 1=1 ${statusQuery} ${productTypeQuery}
+      GROUP BY o.order_id, o.employee_id, o.order_date, o.order_status, e.employee_fname, e.employee_lname, e.employee_image
+      ${orderQuery};
+
   `;
 
   const queryParams = [];
@@ -171,7 +188,6 @@ router.get('/orders', (req, res) => {
       console.error('Database error:', error);
       return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูลใบสั่งซื้อ' });
     }
-
     res.status(200).json(results);
   });
 });
@@ -360,13 +376,14 @@ router.post('/create-order', async (req, res) => {
 });
 
 const unitConversion = {
-  'Kilogram': { 'Gram': 1000 },
+  'Kilogram': { 'Gram': 1000, 'Pound': 2.20462, 'Ton': 0.001 },
   'Gram': { 'Kilogram': 0.001 },
-  'Liter': { 'Milliliter': 1000 },
-  'Milliliter': { 'Liter': 0.001 },
   'Pound': { 'Kilogram': 0.453592 },
-  'Ton': { 'Kilogram': 1000 }
+  'Ton': { 'Kilogram': 1000 },
+  'Liter': { 'Milliliter': 1000 },
+  'Milliliter': { 'Liter': 0.001 }
 };
+
 
 const convertUnit = (quantity, fromUnit, toUnit) => {
   if (fromUnit === toUnit) return quantity;

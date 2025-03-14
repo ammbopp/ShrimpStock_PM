@@ -156,7 +156,7 @@ const OrderDetail = () => {
                 
                 <div className="product-details">
                   <h3>{item.product_name}</h3>
-                  <p>Quantity: {item.request_quantity}</p>
+                  <p>Quantity: {item.order_quantity}</p>
                   <p>Unit: {item.unit_name}</p>
                 </div>
               </div>

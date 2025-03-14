@@ -213,7 +213,7 @@ const Cart = () => {
   };
 
   return (
-    <div>
+    <div className="page-container" style={{marginTop:'140px'}}>
       <div
         className="navbar"
         style={{

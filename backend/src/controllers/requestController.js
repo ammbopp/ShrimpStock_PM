@@ -121,11 +121,32 @@ router.get('/requests/', (req, res) => {
   const orderQuery = order === 'asc' ? 'ORDER BY r.request_date ASC' : 'ORDER BY r.request_date DESC';
 
   const query = `
-    SELECT r.request_id, r.employee_id, r.request_date, r.request_status, p.product_type
-    FROM requests r
-    JOIN request_lists rl ON r.request_id = rl.request_id
-    JOIN products p ON rl.product_id = p.product_id
-    WHERE 1=1 ${statusQuery} ${productTypeQuery} ${orderQuery};
+          SELECT 
+          r.request_id, 
+          r.employee_id, 
+          r.request_date, 
+          r.request_status, 
+          e.employee_fname, 
+          e.employee_lname, 
+          e.employee_image,
+          GROUP_CONCAT(
+              JSON_OBJECT(
+                  'product_id', p.product_id,
+                  'product_name', p.product_name,
+                  'request_quantity', rl.request_quantity,
+                  'unit_name', u.unit_name,
+                  'product_image', p.product_image,
+                  'product_type', p.product_type
+              )
+          ) AS products
+      FROM requests r
+      JOIN request_lists rl ON r.request_id = rl.request_id
+      JOIN products p ON rl.product_id = p.product_id
+      JOIN UNITS u ON rl.unit_id = u.unit_id
+      JOIN EMPLOYEES e ON r.employee_id = e.employee_id
+      WHERE 1=1 ${statusQuery} ${productTypeQuery}
+      GROUP BY r.request_id, r.employee_id, r.request_date, r.request_status, e.employee_fname, e.employee_lname, e.employee_image
+      ${orderQuery};
   `;
 
   const queryParams = [];
@@ -348,13 +369,14 @@ router.post('/create-request', async (req, res) => {
 });
 
 const unitConversion = {
-  'Kilogram': { 'Gram': 1000 },
+  'Kilogram': { 'Gram': 1000, 'Pound': 2.20462, 'Ton': 0.001 },
   'Gram': { 'Kilogram': 0.001 },
-  'Liter': { 'Milliliter': 1000 },
-  'Milliliter': { 'Liter': 0.001 },
   'Pound': { 'Kilogram': 0.453592 },
-  'Ton': { 'Kilogram': 1000 }
+  'Ton': { 'Kilogram': 1000 },
+  'Liter': { 'Milliliter': 1000 },
+  'Milliliter': { 'Liter': 0.001 }
 };
+
 
 const convertUnit = (quantity, fromUnit, toUnit) => {
   if (fromUnit === toUnit) return quantity;
