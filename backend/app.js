@@ -11,6 +11,9 @@ const orderController = require('./src/controllers/orderController');
 const auditController = require('./src/controllers/auditController');
 const pondController = require('./src/controllers/pondController');
 
+const { initSchedulers } = require('./schedulers');
+const scheduledJobs = initSchedulers();
+
 const app = express();
 const port = 3001;
 
@@ -31,4 +34,4 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-module.exports =  app ;
+module.exports = app;
