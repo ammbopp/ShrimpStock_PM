@@ -128,7 +128,13 @@ router.get('/audit/orders/accepted', (req, res) => {
 
 
 router.post('/audits/latest/add-orders', (req, res) => {
-  const { orders } = req.body; // Array of { order_id, order_amount }
+  const { orders } = req.body;
+
+  if (!orders || orders.length === 0) {
+    return res.status(400).json({ error: "No orders provided" });
+  }
+
+  console.log("Orders received:", orders);
 
   const latestAuditQuery = `SELECT audit_id FROM AUDITS ORDER BY payment_due_date DESC LIMIT 1`;
 
@@ -139,27 +145,32 @@ router.post('/audits/latest/add-orders', (req, res) => {
     }
 
     const latestAuditId = auditResults[0].audit_id;
-
     const insertAuditListQuery = `
-          INSERT INTO AUDIT_LISTS (audit_list_id, audit_id, order_id, order_amount)
-          VALUES ?
-      `;
+      INSERT INTO AUDIT_LISTS (audit_list_id, audit_id, order_id, order_amount)
+      VALUES ?
+    `;
     const updateOrderStatusQuery = `UPDATE ORDERS SET order_status = 'done' WHERE order_id IN (?)`;
 
     const auditListValues = [];
     const orderIds = [];
+    const timestamp = Date.now(); // ใช้ timestamp เดียวกันในทุก iteration
 
     orders.forEach(order => {
-      auditListValues.push([
-        `AUDIT_LIST-${Date.now()}-${order.order_id}`,
-        latestAuditId,
-        order.order_id,
-        order.order_amount,
-      ]);
+      if (!order.order_id) {
+        console.error("Invalid order data:", order);
+        return;
+      }
+
+      const auditListId = `AUDIT_LIST-${timestamp}-${order.order_id}`.slice(0, 50); // จำกัดความยาวไม่ให้เกิน 50 ตัวอักษร
+      auditListValues.push([auditListId, latestAuditId, order.order_id, order.order_amount]);
       orderIds.push(order.order_id);
     });
 
-    console.log("Pushed orders: " + auditListValues);
+    if (auditListValues.length === 0) {
+      return res.status(400).json({ error: "No valid orders to insert" });
+    }
+
+    console.log("Pushed audit list values:", auditListValues);
 
     connection.query(insertAuditListQuery, [auditListValues], (insertError) => {
       if (insertError) {
@@ -178,6 +189,7 @@ router.post('/audits/latest/add-orders', (req, res) => {
     });
   });
 });
+
 
 
 

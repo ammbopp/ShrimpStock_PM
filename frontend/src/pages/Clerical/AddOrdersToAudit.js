@@ -1,11 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './AddOrdersToAudit.css';
+import iconUser from '../../assets/bear.png';
 
 const AddOrdersToAudit = () => {
     const [orders, setOrders] = useState([]);
     const [selectedOrders, setSelectedOrders] = useState([]);
     const navigate = useNavigate();
+
+    const location = useLocation();
+    const { employee_fname, employee_lname, employee_image, employee_id, employee_position, cart } = location.state || {};
+
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    const toggleMenu = () => setMenuOpen(!menuOpen);
+    const employeeImagePath = employee_image ? `/avatar/${employee_image}` : iconUser;
+
+    const navigateToPage = (path) => {
+        navigate(path, { state: { employee_fname, employee_lname, employee_image, employee_id, employee_position} });
+    };
 
     useEffect(() => {
         const fetchAcceptedOrders = async () => {
@@ -28,7 +41,7 @@ const AddOrdersToAudit = () => {
     };
 
     const proceedToPayment = () => {
-        navigate('/clerical/add-orders/payment', { state: { selectedOrders } });
+        navigate('/clerical/add-orders/payment', { state: { selectedOrders, employee_fname, employee_lname, employee_image, employee_id } });
     };
 
     return (

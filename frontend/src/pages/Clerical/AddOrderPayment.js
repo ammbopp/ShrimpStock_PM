@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './AddOrderPayment.css';
+import iconUser from '../../assets/bear.png';
 
 const AddOrderPayment = () => {
     const { state } = useLocation();
@@ -8,6 +9,18 @@ const AddOrderPayment = () => {
     const [orderDetails, setOrderDetails] = useState([]);
     const [orderAmounts, setOrderAmounts] = useState({});
     const navigate = useNavigate();
+
+    const location = useLocation();
+  const { employee_fname, employee_lname, employee_image, employee_id, employee_position} = location.state || {};
+
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const toggleMenu = () => setMenuOpen(!menuOpen);
+const employeeImagePath = employee_image ? `/avatar/${employee_image}` : iconUser;
+
+  const navigateToPage = (path) => {
+    navigate(path, { state: { employee_fname, employee_lname, employee_image, employee_id, employee_position} });
+  };
 
     useEffect(() => {
         const fetchOrderDetails = async () => {
@@ -53,16 +66,14 @@ const AddOrderPayment = () => {
                 }),
             });
 
-            if (response.statusCode === 400) {
+            if (response.status === 400) {
                 throw new Error('Invalid payment amount, please enter a valid payment amount for every orders');
             }
-
             if (!response.ok) {
                 throw new Error('Failed to add orders to audit');
             }
-
             alert('Orders added to audit successfully!');
-            navigate('/clerical/audit');
+            navigateToPage('/clerical/audit');
         } catch (error) {
             console.error('Error adding orders:', error);
         }
